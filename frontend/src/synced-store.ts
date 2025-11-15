@@ -22,7 +22,7 @@ session.connect();
 export const useBackend = createSyncedStore<BackendState>({
   initialState: zBackendState.parse({
     channels: [],
-    posts: [],
+    postsByChannelId: {},
   }),
   syncOptions: {
     key: "BackendState",

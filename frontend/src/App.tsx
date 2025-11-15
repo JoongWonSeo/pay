@@ -331,8 +331,8 @@ export default function App() {
           return null;
         }
 
-        // Filter posts for this channel (for now, show all posts as mock data)
-        const channelPosts = state.posts;
+        // Get posts for this specific channel
+        const channelPosts = state.postsByChannelId[selectedChannelId] || [];
 
         return (
           <div className="flex flex-1 flex-col gap-6 p-8">
