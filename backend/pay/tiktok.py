@@ -72,12 +72,6 @@ class TiktokService:
 
     async def start(self):
         await self.api.__aenter__()
-        await self.create_sessions()
-
-    async def end(self):
-        await self.api.__aexit__(None, None, None)
-
-    async def create_sessions(self):
         await self.api.create_sessions(
             ms_tokens=[ms_token],
             num_sessions=1,
@@ -85,6 +79,10 @@ class TiktokService:
             browser=os.getenv("TIKTOK_BROWSER", "chromium"),
             headless=False,
         )
+
+    async def end(self):
+        await self.api.__aexit__(None, None, None)
+        await self.api.close_sessions()
 
     async def get_user_info(self, username: str) -> TiktokChannel:
         user = self.api.user(username)

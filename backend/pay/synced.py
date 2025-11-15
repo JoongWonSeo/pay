@@ -18,17 +18,17 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
     @sync_all()
     def model_post_init(self, _):
         self._tiktok_service = TiktokService()
-        asyncio.create_task(self.init())
+        self._task_init = asyncio.create_task(self._tiktok_service.start())
 
         self._tracked_users = ["tenminai.korean", "violesdcwev"]
-
-    async def init(self):
-        await self._tiktok_service.start()
+        self._task_fetch_from_tiktok: asyncio.Task[None] | None = None
 
     @override
     async def on_connect(self):
-        await super().on_connect()
+        await self._task_init
+        self._task_fetch_from_tiktok = asyncio.create_task(self.fetch_from_tiktok())
 
+    async def fetch_from_tiktok(self):
         self.channels = []
         self.posts_by_channel_id = {}
         for username in self._tracked_users:
@@ -37,8 +37,11 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
             await self.sync()
 
             async for post in self._tiktok_service.get_user_videos(username):
+                if not self.posts_by_channel_id.get(channel.id):
+                    self.posts_by_channel_id[channel.id] = []
                 self.posts_by_channel_id[channel.id].append(post)
                 await self.sync(if_since_last=1 / 60)
+        await self.sync(toast="Finished fetching from TikTok")
 
     @remote_action
     async def add_channel(self, channel: TiktokChannel):
