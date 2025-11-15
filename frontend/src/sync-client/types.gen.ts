@@ -61,9 +61,11 @@ export type BackendState = {
      */
     channels: Array<TiktokChannel>;
     /**
-     * Posts
+     * Postsbychannelid
      */
-    posts: Array<TiktokPost>;
+    postsByChannelId: {
+        [key: string]: Array<TiktokPost>;
+    };
 };
 
 /**

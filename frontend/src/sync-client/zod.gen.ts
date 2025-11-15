@@ -105,35 +105,6 @@ export const zTiktokChannel = z.object({
  * BackendState
  */
 export const zBackendState = z.object({
-    channels: z.array(zTiktokChannel).default([
-        {
-            id: '123',
-            nickname: 'Channel 1',
-            handle: 'channel1',
-            description: 'Description 1',
-            avatar_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-maliva-avt-0068/f611aa99e7db2b1f81ce145c7b063078~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=cb4d1315&x-expires=1763413200&x-signature=tkYPKZGSeWlK%2BYxuvzFyhzRxR%2FI%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast8',
-            stats: {
-                follower_count: 100,
-                following_count: 100,
-                heart_count: 100,
-                video_count: 100
-            }
-        }
-    ]),
-    posts: z.array(zTiktokPost).default([
-        {
-            id: '1',
-            date_posted: '2025-11-11T01:41:37',
-            description: 'post description',
-            url: null,
-            dynamic_cover_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-no1a-p-0037-no/oo6ZsBSITniwFtefEg5TqkpNBgR9EAg4iISBBP~tplv-tiktokx-origin.image?dr=9636&x-expires=1763413200&x-signature=IhGXyXSLlWVOEb6thck89hlL5vg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8',
-            stats: {
-                comment_count: 32,
-                like_count: 100,
-                play_count: 1234,
-                save_count: 450,
-                share_count: 340
-            }
-        }
-    ])
+    channels: z.array(zTiktokChannel).default([]),
+    postsByChannelId: z.record(z.string(), z.array(zTiktokPost)).default({})
 });

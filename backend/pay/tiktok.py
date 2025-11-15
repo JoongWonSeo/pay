@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import AsyncIterator
 
 from TikTokApi import TikTokApi
 
@@ -102,11 +103,24 @@ class TiktokService:
             ),
         )
 
-    async def get_user_videos(self, username: str):
+    async def get_user_videos(self, username: str) -> AsyncIterator[TiktokPost]:
         user = self.api.user(username)
         async for video in user.videos(count=30):
-            print(video)
-            print(video.as_dict)
+            v = video.as_dict
+            yield TiktokPost(
+                id=video.id or "",
+                date_posted=datetime.fromtimestamp(v["createTime"]),
+                description=v["desc"],
+                url=None,
+                dynamic_cover_url=v["video"]["dynamicCover"],
+                stats=TiktokPostStats(
+                    play_count=v["stats"]["playCount"],
+                    like_count=v["stats"]["diggCount"],
+                    comment_count=v["stats"]["commentCount"],
+                    share_count=v["stats"]["shareCount"],
+                    save_count=v["stats"]["collectCount"],
+                ),
+            )
 
 
 # async def user_example():
