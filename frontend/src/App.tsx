@@ -12,7 +12,25 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { useBackend } from "./synced-store"
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+
+const chartData = [
+  { month: 'Jan', views: 8.2, cost: 1.52 },
+  { month: 'Feb', views: 9.8, cost: 1.48 },
+  { month: 'Mar', views: 11.2, cost: 1.45 },
+  { month: 'Apr', views: 12.9, cost: 1.43 },
+  { month: 'May', views: 15.9, cost: 1.40 },
+  { month: 'Jun', views: 22.2, cost: 1.42 },
+]
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home")
@@ -23,13 +41,13 @@ export default function App() {
       return (
         <div className="flex flex-1 flex-col gap-4 p-4">
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="rounded-xl border bg-card p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                  <h3 className="text-2xl font-bold mt-2">$45,231.89</h3>
-                  <p className="text-xs text-muted-foreground mt-1">+20.1% from last month</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Views</p>
+                  <h3 className="text-2xl font-bold mt-2">85.2M</h3>
+                  <p className="text-xs text-muted-foreground mt-1">+18.3% from last month</p>
                 </div>
               </div>
             </div>
@@ -37,8 +55,17 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Active Creators</p>
-                  <h3 className="text-2xl font-bold mt-2">2,350</h3>
-                  <p className="text-xs text-muted-foreground mt-1">+180 from last month</p>
+                  <h3 className="text-2xl font-bold mt-2">103</h3>
+                  <p className="text-xs text-muted-foreground mt-1">+8 from last month</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border bg-card p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Avg Cost per 1K Views</p>
+                  <h3 className="text-2xl font-bold mt-2">$1.42</h3>
+                  <p className="text-xs text-muted-foreground mt-1">-$0.08 from last month</p>
                 </div>
               </div>
             </div>
@@ -46,9 +73,117 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Payouts</p>
-                  <h3 className="text-2xl font-bold mt-2">$12,234.00</h3>
-                  <p className="text-xs text-muted-foreground mt-1">+19% from last month</p>
+                  <h3 className="text-2xl font-bold mt-2">$121,084.00</h3>
+                  <p className="text-xs text-muted-foreground mt-1">+18% from last month</p>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts */}
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Views Chart */}
+            <div className="rounded-xl border bg-card">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Views Over Time</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis
+                      dataKey="month"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}M`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        fontSize: '12px'
+                      }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(value: number) => [`${value}M views`, 'Views']}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="views"
+                      stroke="#a855f7"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorViews)"
+                      dot={{ fill: '#a855f7', strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Cost per 1K Views Chart */}
+            <div className="rounded-xl border bg-card">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Avg Cost per 1K Views</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <XAxis
+                      dataKey="month"
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `$${value}`}
+                      domain={[1.35, 1.55]}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        fontSize: '12px'
+                      }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                      formatter={(value: number) => [`$${value.toFixed(2)}`, 'Cost per 1K']}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cost"
+                      stroke="#a855f7"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorCost)"
+                      dot={{ fill: '#a855f7', strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
@@ -94,50 +229,80 @@ export default function App() {
     }
 
     if (currentPage === "creators") {
+      // Mock monthly views for each creator (based on their ID)
+      const getMonthlyViews = (creatorId: string) => {
+        // Simple hash function to generate consistent mock data
+        const hash = creatorId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        return Math.floor((hash % 50) * 1000 + 10000) // Between 10K-60K views
+      }
+
+      // Mock payment amount based on views
+      const getPaymentAmount = (creatorId: string) => {
+        const views = getMonthlyViews(creatorId)
+        const paymentPerView = 0.05 // $0.05 per view
+        return views * paymentPerView
+      }
+
+      // Generate profile image URL based on creator name
+      const getProfileImage = (name: string) => {
+        return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=6366f1`
+      }
+
       return (
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="rounded-xl border bg-card">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold mb-6">Creators</h2>
-              <div className="space-y-4">
-                {state.channels.length === 0 ? (
-                  <p className="text-muted-foreground">No creators found.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {state.channels.map((creator) => (
-                      <div
-                        key={creator.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{creator.name}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {creator.description}
-                          </p>
-                          <div className="flex gap-4 mt-2">
-                            <span className="text-sm text-muted-foreground">
-                              {creator.payment_email}
-                            </span>
-                            <a
-                              href={creator.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-primary hover:underline"
-                            >
-                              View Channel
-                            </a>
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          ID: {creator.id}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-1 flex-col gap-6 p-8">
+          <h2 className="text-2xl font-bold">Your Creator Fleet</h2>
+          {state.channels.length === 0 ? (
+            <p className="text-muted-foreground">No creators found.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Channel</TableHead>
+                  <TableHead className="text-right">This Month</TableHead>
+                  <TableHead className="text-right">To Be Paid</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {state.channels.map((creator) => {
+                  const monthlyViews = getMonthlyViews(creator.id)
+                  const paymentAmount = getPaymentAmount(creator.id)
+                  const profileImage = getProfileImage(creator.name)
+                  return (
+                    <TableRow key={creator.id}>
+                      <TableCell className="py-4">
+                        <img
+                          src={profileImage}
+                          alt={creator.name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      </TableCell>
+                      <TableCell className="font-semibold py-4">{creator.name}</TableCell>
+                      <TableCell className="text-muted-foreground py-4">{creator.payment_email}</TableCell>
+                      <TableCell className="py-4">
+                        <a
+                          href={creator.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          View Channel
+                        </a>
+                      </TableCell>
+                      <TableCell className="text-right font-medium py-4">
+                        {monthlyViews.toLocaleString()} views
+                      </TableCell>
+                      <TableCell className="text-right font-medium py-4">
+                        ${paymentAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
         </div>
       )
     }
