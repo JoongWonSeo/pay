@@ -164,6 +164,12 @@ export type TiktokPost = {
      */
     id: string;
     /**
+     * Date Posted
+     *
+     * Date posted
+     */
+    date_posted: string;
+    /**
      * Description
      *
      * Post description
@@ -175,6 +181,12 @@ export type TiktokPost = {
      * Post URL, if available
      */
     url: string | null;
+    /**
+     * Dynamic Cover Url
+     *
+     * Dynamic cover URL
+     */
+    dynamic_cover_url: string;
     /**
      * Post aggregated stats
      */

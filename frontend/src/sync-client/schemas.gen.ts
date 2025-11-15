@@ -62,8 +62,10 @@ export const BackendStateSchema = {
             default: [
                 {
                     id: '1',
+                    date_posted: '2025-11-11T01:41:37',
                     description: 'post description',
                     url: null,
+                    dynamic_cover_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-no1a-p-0037-no/oo6ZsBSITniwFtefEg5TqkpNBgR9EAg4iISBBP~tplv-tiktokx-origin.image?dr=9636&x-expires=1763413200&x-signature=IhGXyXSLlWVOEb6thck89hlL5vg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8',
                     stats: {
                         comment_count: 32,
                         like_count: 100,
@@ -177,6 +179,12 @@ export const TiktokPostSchema = {
             title: 'Id',
             type: 'string'
         },
+        date_posted: {
+            description: 'Date posted',
+            format: 'date-time',
+            title: 'Date Posted',
+            type: 'string'
+        },
         description: {
             description: 'Post description',
             title: 'Description',
@@ -194,12 +202,17 @@ export const TiktokPostSchema = {
             description: 'Post URL, if available',
             title: 'Url'
         },
+        dynamic_cover_url: {
+            description: 'Dynamic cover URL',
+            title: 'Dynamic Cover Url',
+            type: 'string'
+        },
         stats: {
             '$ref': '#/components/schemas/TiktokPostStats',
             description: 'Post aggregated stats'
         }
     },
-    required: ['id', 'description', 'url', 'stats'],
+    required: ['id', 'date_posted', 'description', 'url', 'dynamic_cover_url', 'stats'],
     title: 'TiktokPost',
     type: 'object'
 } as const;

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from TikTokApi import TikTokApi
 
@@ -52,10 +53,14 @@ class TiktokPostStats(Model):
 class TiktokPost(Model):
     id: str
     """id as a internal integer"""
+    date_posted: datetime
+    """Date posted"""
     description: str
     """Post description"""
     url: str | None
     """Post URL, if available"""
+    dynamic_cover_url: str
+    """Dynamic cover URL"""
     stats: TiktokPostStats
     """Post aggregated stats"""
 

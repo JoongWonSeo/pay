@@ -41,11 +41,13 @@ export const zTiktokPostStats = z.object({
  */
 export const zTiktokPost = z.object({
     id: z.string(),
+    date_posted: z.iso.datetime(),
     description: z.string(),
     url: z.union([
         z.string(),
         z.null()
     ]),
+    dynamic_cover_url: z.string(),
     stats: zTiktokPostStats
 });
 
@@ -121,8 +123,10 @@ export const zBackendState = z.object({
     posts: z.array(zTiktokPost).default([
         {
             id: '1',
+            date_posted: '2025-11-11T01:41:37',
             description: 'post description',
             url: null,
+            dynamic_cover_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-no1a-p-0037-no/oo6ZsBSITniwFtefEg5TqkpNBgR9EAg4iISBBP~tplv-tiktokx-origin.image?dr=9636&x-expires=1763413200&x-signature=IhGXyXSLlWVOEb6thck89hlL5vg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast8',
             stats: {
                 comment_count: 32,
                 like_count: 100,
