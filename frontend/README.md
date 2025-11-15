@@ -1,135 +1,75 @@
-# frontend
+# React + TypeScript + Vite
 
-A Locus-powered application using Anthropic Claude Agent SDK with MCP integration.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## About
+Currently, two official plugins are available:
 
-This project was created using `create-locus-app` and is configured to use:
-- **Claude Agent SDK** for AI interactions with tool support
-- **Locus MCP server** integration with API key authentication
-- **Full tool calling** capabilities
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Getting Started
+## React Compiler
 
-Your application is already configured and ready to run!
+The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
 
-```bash
-# Run the application
-npm start
+Note: This will impact Vite dev & build performances.
 
-# or with auto-restart on file changes
-npm run dev
-```
+## Expanding the ESLint configuration
 
-## Project Structure
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-- `index.ts` - Main application file with MCP and Claude Agent SDK setup
-- `.env` - Environment variables (credentials are already configured)
-- `.env.example` - Example environment variables for reference
-- `package.json` - Project dependencies and scripts
-- `tsconfig.json` - TypeScript configuration
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-## How It Works
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-1. **MCP Connection**: Connects to Locus MCP server with API key authentication
-2. **Tool Discovery**: Automatically discovers and loads tools from Locus
-3. **Agent Query**: Uses Claude Agent SDK to process queries with tool access
-4. **Tool Execution**: Claude can call Locus tools to complete tasks
-
-## Features
-
-✅ **Fully Integrated:**
-- Locus MCP server connection
-- All Locus tools available to Claude
-- API key authentication (secure, no OAuth needed)
-- Automatic tool discovery
-- Streaming agent responses
-
-## Customization
-
-### Modify the Prompt
-
-Edit the query prompt in `index.ts`:
-
-```javascript
-for await (const message of query({
-  prompt: 'Your custom prompt here - can ask Claude to use Locus tools!',
-  options
-})) {
-  // handle messages
-}
-```
-
-### Add More MCP Servers
-
-You can connect to multiple MCP servers:
-
-```javascript
-const mcpServers = {
-  'locus': {
-    type: 'http',
-    url: 'https://mcp.paywithlocus.com/mcp',
-    headers: { 'Authorization': `Bearer ${process.env.LOCUS_API_KEY}` }
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
   },
-  'another-server': {
-    type: 'sse',
-    url: 'https://example.com/mcp',
-    headers: { 'X-API-Key': process.env.OTHER_API_KEY }
-  }
-};
+])
 ```
 
-### Restrict Tools
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-Limit which tools Claude can use with `allowedTools`:
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-```javascript
-const options = {
-  mcpServers,
-  allowedTools: [
-    'mcp__locus__specific_tool',  // only allow specific tool
-    'mcp__list_resources'
-  ],
-  apiKey: process.env.ANTHROPIC_API_KEY
-};
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-### Handle Different Message Types
-
-Process various message types from the agent:
-
-```javascript
-for await (const message of query({ prompt, options })) {
-  if (message.type === 'system' && message.subtype === 'init') {
-    console.log('MCP servers:', message.mcp_servers);
-  } else if (message.type === 'result' && message.subtype === 'success') {
-    console.log('Final result:', message.result);
-  } else if (message.type === 'error_during_execution') {
-    console.error('Error:', message.error);
-  }
-}
-```
-
-## Environment Variables
-
-Your `.env` file contains:
-- `LOCUS_API_KEY` - Your Locus API key for MCP server authentication
-- `ANTHROPIC_API_KEY` - Your Anthropic API key for Claude
-
-**Important**: Never commit your `.env` file to version control!
-
-## Learn More
-
-- [Locus Documentation](https://docs.paywithlocus.com)
-- [Claude SDK Documentation](https://docs.anthropic.com)
-- [Claude API Reference](https://docs.anthropic.com/en/api)
-
-## Support
-
-For issues or questions:
-- Check the [Locus documentation](https://docs.paywithlocus.com)
-- Contact Locus support
-
----
-
-Built with Locus 🎯
