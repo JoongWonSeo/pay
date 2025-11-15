@@ -40,6 +40,7 @@ export default function App() {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(
     null
   );
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const state = useBackend();
 
   const renderContent = () => {
@@ -321,6 +322,177 @@ export default function App() {
         return views * paymentPerView;
       };
 
+      // If a post is selected, show the post detail page
+      if (selectedPostId && selectedChannelId) {
+        const selectedChannel = state.channels.find(
+          (c) => c.id === selectedChannelId
+        );
+        const channelPosts = state.postsByChannelId[selectedChannelId] || [];
+        const selectedPost = channelPosts.find((p) => p.id === selectedPostId);
+
+        if (!selectedPost || !selectedChannel) {
+          setSelectedPostId(null);
+          return null;
+        }
+
+        // Calculate impact score and payment
+        const impactScore = Math.min(
+          100,
+          Math.floor((selectedPost.stats.play_count / 1000) * 10)
+        );
+        const paymentPerThousandViews = 1.42; // $1.42 per 1K views
+        const totalPayment =
+          (selectedPost.stats.play_count / 1000) * paymentPerThousandViews;
+
+        return (
+          <div className="flex flex-1 flex-col gap-6 p-8">
+            {/* Post Header */}
+            <div className="flex items-start gap-6 pb-6 border-b">
+              <img
+                src={selectedPost.dynamic_cover_url}
+                alt="Post thumbnail"
+                className="w-64 h-80 rounded-xl object-cover"
+              />
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold mb-4">Post Details</h1>
+                <p className="text-muted-foreground mb-4">
+                  {selectedPost.description}
+                </p>
+                <div className="flex gap-2 items-center text-sm text-muted-foreground mb-4">
+                  <span>
+                    Posted on{" "}
+                    {new Date(selectedPost.date_posted).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </span>
+                  {selectedPost.url && (
+                    <>
+                      <span>•</span>
+                      <a
+                        href={selectedPost.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        View on TikTok
+                      </a>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Performance Stats</h2>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="rounded-xl border bg-card p-6">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <Eye className="w-4 h-4" />
+                    <p className="text-sm font-medium">Views</p>
+                  </div>
+                  <h3 className="text-2xl font-bold">
+                    {selectedPost.stats.play_count.toLocaleString()}
+                  </h3>
+                </div>
+                <div className="rounded-xl border bg-card p-6">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <Heart className="w-4 h-4" />
+                    <p className="text-sm font-medium">Likes</p>
+                  </div>
+                  <h3 className="text-2xl font-bold">
+                    {selectedPost.stats.like_count.toLocaleString()}
+                  </h3>
+                </div>
+                <div className="rounded-xl border bg-card p-6">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <MessageCircle className="w-4 h-4" />
+                    <p className="text-sm font-medium">Comments</p>
+                  </div>
+                  <h3 className="text-2xl font-bold">
+                    {selectedPost.stats.comment_count.toLocaleString()}
+                  </h3>
+                </div>
+                <div className="rounded-xl border bg-card p-6">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <Share2 className="w-4 h-4" />
+                    <p className="text-sm font-medium">Shares</p>
+                  </div>
+                  <h3 className="text-2xl font-bold">
+                    {selectedPost.stats.share_count.toLocaleString()}
+                  </h3>
+                </div>
+                <div className="rounded-xl border bg-card p-6">
+                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                    <p className="text-sm font-medium">Impact Score</p>
+                  </div>
+                  <h3 className="text-2xl font-bold">{impactScore}%</h3>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Info */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Payment Details</h2>
+              <div className="rounded-xl border bg-card p-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Rate per 1K Views
+                    </p>
+                    <p className="text-xl font-semibold">
+                      ${paymentPerThousandViews.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Total Payment
+                    </p>
+                    <p className="text-2xl font-bold">
+                      $
+                      {totalPayment.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Analysis */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">AI Analysis</h2>
+              <div className="rounded-xl border bg-card p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Impact Score Reasoning
+                    </h3>
+                    <p className="text-muted-foreground italic">
+                      Analysis coming soon...
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Payment Calculation
+                    </h3>
+                    <p className="text-muted-foreground italic">
+                      Analysis coming soon...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       // If a channel is selected, show the channel detail page
       if (selectedChannelId) {
         const selectedChannel = state.channels.find(
@@ -378,7 +550,8 @@ export default function App() {
                     return (
                       <div
                         key={post.id}
-                        className="rounded-xl border bg-card overflow-hidden hover:shadow-lg transition-shadow"
+                        onClick={() => setSelectedPostId(post.id)}
+                        className="rounded-xl border bg-card overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                       >
                         {/* Cover Image */}
                         <div className="aspect-[4/5] bg-muted relative">
@@ -566,7 +739,37 @@ export default function App() {
           />
           <Breadcrumb>
             <BreadcrumbList>
-              {currentPage === "creators" && selectedChannelId ? (
+              {currentPage === "creators" &&
+              selectedChannelId &&
+              selectedPostId ? (
+                <>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      onClick={() => {
+                        setSelectedChannelId(null);
+                        setSelectedPostId(null);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      Creators
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      onClick={() => setSelectedPostId(null)}
+                      className="cursor-pointer"
+                    >
+                      {state.channels.find((c) => c.id === selectedChannelId)
+                        ?.nickname || "Channel"}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Post Details</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              ) : currentPage === "creators" && selectedChannelId ? (
                 <>
                   <BreadcrumbItem>
                     <BreadcrumbLink
