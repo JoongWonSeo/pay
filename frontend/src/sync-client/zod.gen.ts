@@ -26,6 +26,66 @@ export const zBackendStateTasksKeys = z.unknown();
 export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
 
 /**
+ * TiktokPostEvaluation
+ */
+export const zTiktokPostEvaluation = z.object({
+    id: z.union([
+        z.string(),
+        z.null()
+    ]).default(null),
+    product_mentioned: z.union([
+        z.boolean(),
+        z.null()
+    ]).default(null),
+    prominence_of_product: z.union([
+        z.enum([
+            'high',
+            'medium',
+            'low'
+        ]),
+        z.null()
+    ]).default(null),
+    target_group_fit: z.union([
+        z.enum([
+            'high',
+            'medium',
+            'low'
+        ]),
+        z.null()
+    ]).default(null),
+    post_type: z.union([
+        z.enum([
+            'demo',
+            'review',
+            'product recommendation',
+            'trend',
+            'other'
+        ]),
+        z.null()
+    ]).default(null),
+    estimated_ctr: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    determined_price_per_1k: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    determined_payout: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    date_evaluated: z.union([
+        z.iso.datetime(),
+        z.null()
+    ]).default(null),
+    evaluation_text: z.union([
+        z.string(),
+        z.null()
+    ]).default(null)
+});
+
+/**
  * TiktokPostStats
  */
 export const zTiktokPostStats = z.object({
@@ -106,5 +166,20 @@ export const zTiktokChannel = z.object({
  */
 export const zBackendState = z.object({
     channels: z.array(zTiktokChannel).default([]),
-    postsByChannelId: z.record(z.string(), z.array(zTiktokPost)).default({})
+    postsByChannelId: z.record(z.string(), z.array(zTiktokPost)).default({}),
+    postEvaluations: z.record(z.string(), zTiktokPostEvaluation).default({
+        1: {
+            date_evaluated: null,
+            determined_payout: null,
+            determined_price_per_1k: null,
+            estimated_ctr: 0.2,
+            evaluation_text: null,
+            id: '1',
+            post_type: 'demo',
+            product_mentioned: true,
+            prominence_of_product: 'high',
+            target_group_fit: 'high'
+        }
+    }),
+    postPayouts: z.record(z.string(), z.number()).default({})
 });

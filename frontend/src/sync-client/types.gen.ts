@@ -66,6 +66,20 @@ export type BackendState = {
     postsByChannelId: {
         [key: string]: Array<TiktokPost>;
     };
+    /**
+     * Postevaluations
+     *
+     * Post evaluations by post id
+     */
+    postEvaluations: {
+        [key: string]: TiktokPostEvaluation;
+    };
+    /**
+     * Postpayouts
+     */
+    postPayouts: {
+        [key: string]: number;
+    };
 };
 
 /**
@@ -193,6 +207,72 @@ export type TiktokPost = {
      * Post aggregated stats
      */
     stats: TiktokPostStats;
+};
+
+/**
+ * TiktokPostEvaluation
+ */
+export type TiktokPostEvaluation = {
+    /**
+     * Id
+     *
+     * id as a internal integer
+     */
+    id: string | null;
+    /**
+     * Product Mentioned
+     *
+     * Whether the product is mentioned in the post
+     */
+    product_mentioned: boolean | null;
+    /**
+     * Prominence Of Product
+     *
+     * How prominent the product is in the post
+     */
+    prominence_of_product: 'high' | 'medium' | 'low' | null;
+    /**
+     * Target Group Fit
+     *
+     * How well the post fits the target group
+     */
+    target_group_fit: 'high' | 'medium' | 'low' | null;
+    /**
+     * Post Type
+     *
+     * Type of post
+     */
+    post_type: 'demo' | 'review' | 'product recommendation' | 'trend' | 'other' | null;
+    /**
+     * Estimated Ctr
+     *
+     * Estimated CTR (typically around 0.2% to 5%)
+     */
+    estimated_ctr: number | null;
+    /**
+     * Determined Price Per 1K
+     *
+     * Determined price per 1K views
+     */
+    determined_price_per_1k: number | null;
+    /**
+     * Determined Payout
+     *
+     * Determined payout based on all factors
+     */
+    determined_payout: number | null;
+    /**
+     * Date Evaluated
+     *
+     * Date evaluated
+     */
+    date_evaluated: string | null;
+    /**
+     * Evaluation Text
+     *
+     * Evaluation
+     */
+    evaluation_text: string | null;
 };
 
 /**

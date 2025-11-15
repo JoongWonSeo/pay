@@ -12,6 +12,16 @@ from pay.tiktok import TiktokChannel, TiktokPost, TiktokService
 logger = logging.getLogger(__name__)
 
 
+def _log_task_exception(task: asyncio.Task):
+    """Log exceptions from completed tasks."""
+    try:
+        task.result()
+    except asyncio.CancelledError:
+        pass  # Task cancellation is expected, don't log
+    except Exception:
+        logger.exception(f"Exception in task {task.get_name()}")
+
+
 class TiktokPostEvaluation(Model):
     id: str | None = None
     """id as a internal integer"""
@@ -58,6 +68,7 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
     def model_post_init(self, _):
         self._tiktok_service = TiktokService()
         self._task_init = asyncio.create_task(self._tiktok_service.start())
+        self._task_init.add_done_callback(_log_task_exception)
 
         self._tracked_users = ["tenminai.korean", "violesdcwev"]
         self._task_fetch_from_tiktok: asyncio.Task[None] | None = None
@@ -66,6 +77,7 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
     async def on_connect(self):
         await self._task_init
         self._task_fetch_from_tiktok = asyncio.create_task(self.fetch_from_tiktok())
+        self._task_fetch_from_tiktok.add_done_callback(_log_task_exception)
 
     async def fetch_from_tiktok(self):
         self.channels = []

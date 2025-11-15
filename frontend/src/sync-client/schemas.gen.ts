@@ -54,9 +54,39 @@ export const BackendStateSchema = {
             default: {},
             title: 'Postsbychannelid',
             type: 'object'
+        },
+        postEvaluations: {
+            additionalProperties: {
+                '$ref': '#/components/schemas/TiktokPostEvaluation'
+            },
+            default: {
+                1: {
+                    date_evaluated: null,
+                    determined_payout: null,
+                    determined_price_per_1k: null,
+                    estimated_ctr: 0.2,
+                    evaluation_text: null,
+                    id: '1',
+                    post_type: 'demo',
+                    product_mentioned: true,
+                    prominence_of_product: 'high',
+                    target_group_fit: 'high'
+                }
+            },
+            description: 'Post evaluations by post id',
+            title: 'Postevaluations',
+            type: 'object'
+        },
+        postPayouts: {
+            additionalProperties: {
+                type: 'number'
+            },
+            default: {},
+            title: 'Postpayouts',
+            type: 'object'
         }
     },
-    required: ['channels', 'postsByChannelId'],
+    required: ['channels', 'postsByChannelId', 'postEvaluations', 'postPayouts'],
     title: 'BackendState',
     type: 'object'
 } as const;
@@ -188,6 +218,148 @@ export const TiktokPostSchema = {
     },
     required: ['id', 'date_posted', 'description', 'url', 'dynamic_cover_url', 'stats'],
     title: 'TiktokPost',
+    type: 'object'
+} as const;
+
+export const TiktokPostEvaluationSchema = {
+    properties: {
+        id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'id as a internal integer',
+            title: 'Id'
+        },
+        product_mentioned: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Whether the product is mentioned in the post',
+            title: 'Product Mentioned'
+        },
+        prominence_of_product: {
+            anyOf: [
+                {
+                    enum: ['high', 'medium', 'low'],
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'How prominent the product is in the post',
+            title: 'Prominence Of Product'
+        },
+        target_group_fit: {
+            anyOf: [
+                {
+                    enum: ['high', 'medium', 'low'],
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'How well the post fits the target group',
+            title: 'Target Group Fit'
+        },
+        post_type: {
+            anyOf: [
+                {
+                    enum: ['demo', 'review', 'product recommendation', 'trend', 'other'],
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Type of post',
+            title: 'Post Type'
+        },
+        estimated_ctr: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Estimated CTR (typically around 0.2% to 5%)',
+            title: 'Estimated Ctr'
+        },
+        determined_price_per_1k: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined price per 1K views',
+            title: 'Determined Price Per 1K'
+        },
+        determined_payout: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined payout based on all factors',
+            title: 'Determined Payout'
+        },
+        date_evaluated: {
+            anyOf: [
+                {
+                    format: 'date-time',
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Date evaluated',
+            title: 'Date Evaluated'
+        },
+        evaluation_text: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Evaluation',
+            title: 'Evaluation Text'
+        }
+    },
+    required: ['id', 'product_mentioned', 'prominence_of_product', 'target_group_fit', 'post_type', 'estimated_ctr', 'determined_price_per_1k', 'determined_payout', 'date_evaluated', 'evaluation_text'],
+    title: 'TiktokPostEvaluation',
     type: 'object'
 } as const;
 

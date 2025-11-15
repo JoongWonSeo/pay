@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from functools import cache
 
@@ -10,6 +11,29 @@ from pay.synced import BackendState
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
+
+
+# Global asyncio exception handler to catch errors in tasks
+def asyncio_exception_handler(loop, context):
+    """Handle exceptions that occur in asyncio tasks."""
+    exception = context.get("exception")
+    message = context.get("message", "Unhandled exception in asyncio task")
+
+    if exception:
+        logger.error(
+            f"Asyncio task exception: {message}",
+            exc_info=(type(exception), exception, exception.__traceback__)
+        )
+    else:
+        logger.error(f"Asyncio task error: {message}", extra={"context": context})
+
+
+@app.on_event("startup")
+async def setup_asyncio_exception_handler():
+    """Set up global asyncio exception handler on application startup."""
+    loop = asyncio.get_running_loop()
+    loop.set_exception_handler(asyncio_exception_handler)
+    logger.info("Asyncio exception handler configured")
 
 
 @app.get("/")
