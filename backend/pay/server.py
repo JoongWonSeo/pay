@@ -6,7 +6,7 @@ from fastapi.openapi.utils import get_openapi
 from ws_sync import Session
 from ws_sync.synced_model import registered_synced_models
 
-from pay.hello import HelloSync
+from pay.synced import BackendState
 
 app = FastAPI()
 
@@ -20,10 +20,8 @@ def read_root():
 sessions: dict[str, Session] = {}
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(ws: WebSocket):
-    session_id = "default"
-    logging.info(f"Websocket connection established for session: {session_id}")
+@app.websocket("/ws/{session_id}")
+async def websocket_endpoint(ws: WebSocket, session_id: str):
     if session_id not in sessions:
         logging.info(f"Creating new session: {session_id}")
         session = Session()
@@ -31,11 +29,10 @@ async def websocket_endpoint(ws: WebSocket):
 
         # init session state
         with session:
-            session.state = HelloSync(message="inited")
+            session.state = BackendState(message="inited")
     else:
         logging.info(f"Session already exists: {session_id}")
-
-    session = sessions[session_id]
+        session = sessions[session_id]
 
     await session.handle_connection(ws)
 

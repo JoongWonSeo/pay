@@ -2,14 +2,15 @@ import { toast } from "sonner";
 import { Session } from "ws-sync";
 import { createSyncedStore } from "./store-config";
 import {
-  HelloSyncActionsKeys,
-  type HelloSync,
-  type HelloSyncActionsParams,
+  BackendStateActionsKeys,
+  type BackendState,
+  type BackendStateActionsParams,
 } from "./sync-client/types.gen";
+import { zBackendState } from "./sync-client/zod.gen";
 
 // global ws-session
 export const session = new Session(
-  "http://localhost:8000/ws",
+  "http://localhost:8000/ws/test-session",
   "Backend",
   toast,
   "arraybuffer" // receive arraybuffer instead of blob
@@ -18,26 +19,26 @@ export const session = new Session(
 session.connect();
 
 // ========== state ========== //
-export const useHelloSync = createSyncedStore<HelloSync>({
-  initialState: {
-    message: "not connected yet",
-  },
+export const useBackend = createSyncedStore<BackendState>({
+  initialState: zBackendState.parse({}),
   syncOptions: {
-    key: "HelloSync",
+    key: "BackendState",
     session,
   },
 });
 
 // ========== actions ========== //
-const { setState: set, sync } = useHelloSync;
+const { setState: set, sync } = useBackend;
 
 export const helloSync = {
   // remote actions, delegate to backend by default
-  ...sync.createDelegators<HelloSyncActionsParams>()(HelloSyncActionsKeys),
+  ...sync.createDelegators<BackendStateActionsParams>()(
+    BackendStateActionsKeys
+  ),
 
-  // local actions
-  setMessage: (message: string) => {
-    set({ message });
-    sync();
-  },
+  // // local actions
+  // setMessage: (message: string) => {
+  //   set({ message });
+  //   sync();
+  // },
 };

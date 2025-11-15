@@ -1,8 +1,8 @@
 import { toast } from "sonner";
-import { helloSync, useHelloSync } from "./synced-store";
+import { useBackend } from "./synced-store";
 
 function App() {
-  const message = useHelloSync((state) => state.message);
+  const channels = useBackend((state) => state.channels);
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen bg-gray-300 w-screen">
@@ -12,7 +12,7 @@ function App() {
         <button
           className="bg-blue-500 text-white p-2 rounded-md"
           onClick={() => {
-            useHelloSync.sync.fetchRemoteState();
+            useBackend.sync.fetchRemoteState();
             toast.success("Remote state fetched");
           }}
         >
@@ -20,18 +20,9 @@ function App() {
         </button>
 
         {/* render the message from the synced store */}
-        <div className="text-2xl">{message}</div>
-
-        {/* set message button */}
-        <button
-          className="bg-green-500 text-white p-2 rounded-md"
-          onClick={() => {
-            helloSync.setMessage("Hello, from the frontend!");
-            toast.success("Message set");
-          }}
-        >
-          Set Message
-        </button>
+        <div className="text-2xl">
+          {channels.map((channel) => channel.name).join(", ")}
+        </div>
       </div>
     </>
   );

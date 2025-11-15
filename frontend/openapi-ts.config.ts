@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 const clients = {
   // synced objects (ws-sync)
-  "http://localhost:8000/ws-sync/HelloSync/openapi.json": "src/sync-client",
+  "http://localhost:8000/ws-sync/BackendState/openapi.json": "src/sync-client",
 };
 
 export default defineConfig({

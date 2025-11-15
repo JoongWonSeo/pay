@@ -3,47 +3,84 @@
 import { z } from 'zod';
 
 /**
- * HelloSyncActionsKeys
+ * BackendStateActionsKeys
  *
  * Lists all action keys as enum values
  */
-export const zHelloSyncActionsKeys = z.enum([
-    'set_message'
-]);
+export const zBackendStateActionsKeys = z.unknown();
 
 /**
- * HelloSyncTasksKeys
- *
- * Lists all task keys as enum values
- */
-export const zHelloSyncTasksKeys = z.unknown();
-
-/**
- * HelloSyncTasksParams
- *
- * Maps each task key to its parameters
- */
-export const zHelloSyncTasksParams = z.record(z.string(), z.unknown());
-
-/**
- * HelloSync
- */
-export const zHelloSync = z.object({
-    message: z.string().default("hey what's up")
-});
-
-/**
- * HelloSyncActionSetMessage
- */
-export const zHelloSyncActionSetMessage = z.object({
-    message: z.string()
-});
-
-/**
- * HelloSyncActionsParams
+ * BackendStateActionsParams
  *
  * Maps each action keys to its parameters
  */
-export const zHelloSyncActionsParams = z.object({
-    set_message: zHelloSyncActionSetMessage
+export const zBackendStateActionsParams = z.record(z.string(), z.unknown());
+
+/**
+ * BackendStateTasksKeys
+ *
+ * Lists all task keys as enum values
+ */
+export const zBackendStateTasksKeys = z.unknown();
+
+/**
+ * BackendStateTasksParams
+ *
+ * Maps each task key to its parameters
+ */
+export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
+
+/**
+ * TiktokChannel
+ */
+export const zTiktokChannel = z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    url: z.string(),
+    payment_email: z.string()
+});
+
+/**
+ * TiktokPost
+ */
+export const zTiktokPost = z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string(),
+    url: z.string(),
+    views: z.int(),
+    last_updated: z.iso.datetime()
+});
+
+/**
+ * BackendState
+ */
+export const zBackendState = z.object({
+    channels: z.array(zTiktokChannel).default([
+        {
+            id: '123',
+            name: 'Channel 1',
+            description: 'Description 1',
+            url: 'https://www.tiktok.com/@channel1',
+            payment_email: 'channel1@example.com'
+        },
+        {
+            id: '456',
+            name: 'Channel 2',
+            description: 'Description 2',
+            url: 'https://www.tiktok.com/@channel2',
+            payment_email: 'channel2@example.com'
+        }
+    ]),
+    posts: z.array(zTiktokPost).default([
+        {
+            id: '456',
+            title: 'Post 1',
+            description: 'Description 1',
+            url: 'https://www.tiktok.com/post1',
+            views: 100,
+            last_updated: '2025-11-15T11:46:35.280785'
+        }
+    ])
 });

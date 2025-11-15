@@ -5,69 +5,117 @@ export type ClientOptions = {
 };
 
 /**
- * HelloSyncActionsKeys
+ * BackendStateActionsKeys
  *
  * Lists all action keys as enum values
  */
-export const HelloSyncActionsKeys = {
-    setMessage: 'set_message'
-} as const;
+export const BackendStateActionsKeys = {} as const;
 
 /**
- * HelloSyncActionsKeys
+ * BackendStateActionsKeys
  *
  * Lists all action keys as enum values
  */
-export type HelloSyncActionsKeys = typeof HelloSyncActionsKeys[keyof typeof HelloSyncActionsKeys];
+export type BackendStateActionsKeys = typeof BackendStateActionsKeys[keyof typeof BackendStateActionsKeys];
 
 /**
- * HelloSyncActionsParams
+ * BackendStateActionsParams
  *
  * Maps each action keys to its parameters
  */
-export type HelloSyncActionsParams = {
-    set_message: HelloSyncActionSetMessage;
-};
-
-/**
- * HelloSyncTasksKeys
- *
- * Lists all task keys as enum values
- */
-export const HelloSyncTasksKeys = {} as const;
-
-/**
- * HelloSyncTasksKeys
- *
- * Lists all task keys as enum values
- */
-export type HelloSyncTasksKeys = typeof HelloSyncTasksKeys[keyof typeof HelloSyncTasksKeys];
-
-/**
- * HelloSyncTasksParams
- *
- * Maps each task key to its parameters
- */
-export type HelloSyncTasksParams = {
+export type BackendStateActionsParams = {
     [key: string]: unknown;
 };
 
 /**
- * HelloSync
+ * BackendStateTasksKeys
+ *
+ * Lists all task keys as enum values
  */
-export type HelloSync = {
-    /**
-     * Message
-     */
-    message: string;
+export const BackendStateTasksKeys = {} as const;
+
+/**
+ * BackendStateTasksKeys
+ *
+ * Lists all task keys as enum values
+ */
+export type BackendStateTasksKeys = typeof BackendStateTasksKeys[keyof typeof BackendStateTasksKeys];
+
+/**
+ * BackendStateTasksParams
+ *
+ * Maps each task key to its parameters
+ */
+export type BackendStateTasksParams = {
+    [key: string]: unknown;
 };
 
 /**
- * HelloSyncActionSetMessage
+ * BackendState
  */
-export type HelloSyncActionSetMessage = {
+export type BackendState = {
     /**
-     * Message
+     * Channels
      */
-    message: string;
+    channels: Array<TiktokChannel>;
+    /**
+     * Posts
+     */
+    posts: Array<TiktokPost>;
+};
+
+/**
+ * TiktokChannel
+ */
+export type TiktokChannel = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Payment Email
+     */
+    payment_email: string;
+};
+
+/**
+ * TiktokPost
+ */
+export type TiktokPost = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description: string;
+    /**
+     * Url
+     */
+    url: string;
+    /**
+     * Views
+     */
+    views: number;
+    /**
+     * Last Updated
+     */
+    last_updated: string;
 };
