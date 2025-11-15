@@ -26,33 +26,6 @@ export const zBackendStateTasksKeys = z.unknown();
 export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
 
 /**
- * TiktokChannel
- */
-export const zTiktokChannel = z.object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    url: z.string(),
-    payment_email: z.string()
-});
-
-/**
- * BackendStateActionAddChannel
- */
-export const zBackendStateActionAddChannel = z.object({
-    channel: zTiktokChannel
-});
-
-/**
- * BackendStateActionsParams
- *
- * Maps each action keys to its parameters
- */
-export const zBackendStateActionsParams = z.object({
-    add_channel: zBackendStateActionAddChannel
-});
-
-/**
  * TiktokPost
  */
 export const zTiktokPost = z.object({
@@ -65,23 +38,72 @@ export const zTiktokPost = z.object({
 });
 
 /**
+ * TiktokUserStats
+ */
+export const zTiktokUserStats = z.object({
+    follower_count: z.int(),
+    following_count: z.int(),
+    heart_count: z.int(),
+    video_count: z.int()
+});
+
+/**
+ * TiktokChannel
+ */
+export const zCreateTiktokChannel = z.object({
+    id: z.string(),
+    nickname: z.string(),
+    handle: z.string(),
+    description: z.string(),
+    avatar_url: z.string(),
+    stats: zTiktokUserStats
+});
+
+/**
+ * BackendStateActionAddChannel
+ */
+export const zBackendStateActionAddChannel = z.object({
+    channel: zCreateTiktokChannel
+});
+
+/**
+ * BackendStateActionsParams
+ *
+ * Maps each action keys to its parameters
+ */
+export const zBackendStateActionsParams = z.object({
+    add_channel: zBackendStateActionAddChannel
+});
+
+/**
+ * TiktokChannel
+ */
+export const zTiktokChannel = z.object({
+    id: z.string(),
+    nickname: z.string(),
+    handle: z.string(),
+    description: z.string(),
+    avatar_url: z.string(),
+    stats: zTiktokUserStats
+});
+
+/**
  * BackendState
  */
 export const zBackendState = z.object({
     channels: z.array(zTiktokChannel).default([
         {
             id: '123',
-            name: 'Channel 1',
+            nickname: 'Channel 1',
+            handle: 'channel1',
             description: 'Description 1',
-            url: 'https://www.tiktok.com/@channel1',
-            payment_email: 'channel1@example.com'
-        },
-        {
-            id: '456',
-            name: 'Channel 2',
-            description: 'Description 2',
-            url: 'https://www.tiktok.com/@channel2',
-            payment_email: 'channel2@example.com'
+            avatar_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-maliva-avt-0068/f611aa99e7db2b1f81ce145c7b063078~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=cb4d1315&x-expires=1763413200&x-signature=tkYPKZGSeWlK%2BYxuvzFyhzRxR%2FI%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast8',
+            stats: {
+                follower_count: 100,
+                following_count: 100,
+                heart_count: 100,
+                video_count: 100
+            }
         }
     ]),
     posts: z.array(zTiktokPost).default([
@@ -91,7 +113,7 @@ export const zBackendState = z.object({
             description: 'Description 1',
             url: 'https://www.tiktok.com/post1',
             views: 100,
-            last_updated: '2025-11-15T12:07:11.965347'
+            last_updated: '2025-11-15T12:00:00Z'
         }
     ])
 });

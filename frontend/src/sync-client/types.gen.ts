@@ -70,7 +70,47 @@ export type BackendState = {
  * BackendStateActionAddChannel
  */
 export type BackendStateActionAddChannel = {
-    channel: TiktokChannel;
+    channel: CreateTiktokChannel;
+};
+
+/**
+ * TiktokChannel
+ */
+export type CreateTiktokChannel = {
+    /**
+     * Id
+     *
+     * id as a internal integer
+     */
+    id: string;
+    /**
+     * Nickname
+     *
+     * To show as UI
+     */
+    nickname: string;
+    /**
+     * Handle
+     *
+     * In the twitter @handle format
+     */
+    handle: string;
+    /**
+     * Description
+     *
+     * Profile description
+     */
+    description: string;
+    /**
+     * Avatar Url
+     *
+     * Profile avatar URL
+     */
+    avatar_url: string;
+    /**
+     * User aggregated stats
+     */
+    stats: TiktokUserStats;
 };
 
 /**
@@ -79,24 +119,38 @@ export type BackendStateActionAddChannel = {
 export type TiktokChannel = {
     /**
      * Id
+     *
+     * id as a internal integer
      */
     id: string;
     /**
-     * Name
+     * Nickname
+     *
+     * To show as UI
      */
-    name: string;
+    nickname: string;
+    /**
+     * Handle
+     *
+     * In the twitter @handle format
+     */
+    handle: string;
     /**
      * Description
+     *
+     * Profile description
      */
     description: string;
     /**
-     * Url
+     * Avatar Url
+     *
+     * Profile avatar URL
      */
-    url: string;
+    avatar_url: string;
     /**
-     * Payment Email
+     * User aggregated stats
      */
-    payment_email: string;
+    stats: TiktokUserStats;
 };
 
 /**
@@ -127,4 +181,26 @@ export type TiktokPost = {
      * Last Updated
      */
     last_updated: string;
+};
+
+/**
+ * TiktokUserStats
+ */
+export type TiktokUserStats = {
+    /**
+     * Follower Count
+     */
+    follower_count: number;
+    /**
+     * Following Count
+     */
+    following_count: number;
+    /**
+     * Heart Count
+     */
+    heart_count: number;
+    /**
+     * Video Count
+     */
+    video_count: number;
 };

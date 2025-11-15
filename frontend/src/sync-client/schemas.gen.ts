@@ -40,17 +40,16 @@ export const BackendStateSchema = {
             default: [
                 {
                     id: '123',
-                    name: 'Channel 1',
+                    nickname: 'Channel 1',
+                    handle: 'channel1',
                     description: 'Description 1',
-                    url: 'https://www.tiktok.com/@channel1',
-                    payment_email: 'channel1@example.com'
-                },
-                {
-                    id: '456',
-                    name: 'Channel 2',
-                    description: 'Description 2',
-                    url: 'https://www.tiktok.com/@channel2',
-                    payment_email: 'channel2@example.com'
+                    avatar_url: 'https://p16-common-sign.tiktokcdn-us.com/tos-maliva-avt-0068/f611aa99e7db2b1f81ce145c7b063078~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=9640&refresh_token=cb4d1315&x-expires=1763413200&x-signature=tkYPKZGSeWlK%2BYxuvzFyhzRxR%2FI%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=useast8',
+                    stats: {
+                        follower_count: 100,
+                        following_count: 100,
+                        heart_count: 100,
+                        video_count: 100
+                    }
                 }
             ],
             items: {
@@ -67,7 +66,7 @@ export const BackendStateSchema = {
                     description: 'Description 1',
                     url: 'https://www.tiktok.com/post1',
                     views: 100,
-                    last_updated: '2025-11-15T12:07:11.965347'
+                    last_updated: '2025-11-15T12:00:00Z'
                 }
             ],
             items: {
@@ -85,7 +84,7 @@ export const BackendStateSchema = {
 export const BackendStateActionAddChannelSchema = {
     properties: {
         channel: {
-            '$ref': '#/components/schemas/TiktokChannel'
+            '$ref': '#/components/schemas/CreateTiktokChannel'
         }
     },
     required: ['channel'],
@@ -93,30 +92,76 @@ export const BackendStateActionAddChannelSchema = {
     type: 'object'
 } as const;
 
-export const TiktokChannelSchema = {
+export const CreateTiktokChannelSchema = {
     properties: {
         id: {
+            description: 'id as a internal integer',
             title: 'Id',
             type: 'string'
         },
-        name: {
-            title: 'Name',
+        nickname: {
+            description: 'To show as UI',
+            title: 'Nickname',
+            type: 'string'
+        },
+        handle: {
+            description: 'In the twitter @handle format',
+            title: 'Handle',
             type: 'string'
         },
         description: {
+            description: 'Profile description',
             title: 'Description',
             type: 'string'
         },
-        url: {
-            title: 'Url',
+        avatar_url: {
+            description: 'Profile avatar URL',
+            title: 'Avatar Url',
             type: 'string'
         },
-        payment_email: {
-            title: 'Payment Email',
-            type: 'string'
+        stats: {
+            '$ref': '#/components/schemas/TiktokUserStats',
+            description: 'User aggregated stats'
         }
     },
-    required: ['id', 'name', 'description', 'url', 'payment_email'],
+    required: ['id', 'nickname', 'handle', 'description', 'avatar_url', 'stats'],
+    title: 'TiktokChannel',
+    type: 'object'
+} as const;
+
+export const TiktokChannelSchema = {
+    properties: {
+        id: {
+            description: 'id as a internal integer',
+            title: 'Id',
+            type: 'string'
+        },
+        nickname: {
+            description: 'To show as UI',
+            title: 'Nickname',
+            type: 'string'
+        },
+        handle: {
+            description: 'In the twitter @handle format',
+            title: 'Handle',
+            type: 'string'
+        },
+        description: {
+            description: 'Profile description',
+            title: 'Description',
+            type: 'string'
+        },
+        avatar_url: {
+            description: 'Profile avatar URL',
+            title: 'Avatar Url',
+            type: 'string'
+        },
+        stats: {
+            '$ref': '#/components/schemas/TiktokUserStats',
+            description: 'User aggregated stats'
+        }
+    },
+    required: ['id', 'nickname', 'handle', 'description', 'avatar_url', 'stats'],
     title: 'TiktokChannel',
     type: 'object'
 } as const;
@@ -151,5 +196,29 @@ export const TiktokPostSchema = {
     },
     required: ['id', 'title', 'description', 'url', 'views', 'last_updated'],
     title: 'TiktokPost',
+    type: 'object'
+} as const;
+
+export const TiktokUserStatsSchema = {
+    properties: {
+        follower_count: {
+            title: 'Follower Count',
+            type: 'integer'
+        },
+        following_count: {
+            title: 'Following Count',
+            type: 'integer'
+        },
+        heart_count: {
+            title: 'Heart Count',
+            type: 'integer'
+        },
+        video_count: {
+            title: 'Video Count',
+            type: 'integer'
+        }
+    },
+    required: ['follower_count', 'following_count', 'heart_count', 'video_count'],
+    title: 'TiktokUserStats',
     type: 'object'
 } as const;
