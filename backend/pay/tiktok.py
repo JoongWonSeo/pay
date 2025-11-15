@@ -112,7 +112,9 @@ class TiktokService:
                 date_posted=datetime.fromtimestamp(v["createTime"]),
                 description=v["desc"],
                 url=None,
-                dynamic_cover_url=v["video"]["dynamicCover"],
+                dynamic_cover_url=v["video"].get("dynamicCover")
+                or v["video"].get("cover")
+                or "",
                 stats=TiktokPostStats(
                     play_count=v["stats"]["playCount"],
                     like_count=v["stats"]["diggCount"],
