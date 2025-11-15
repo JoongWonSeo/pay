@@ -1,50 +1,12 @@
 # synced object
 import logging
-from datetime import datetime
 
 from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
 from pay.model import Model
+from pay.tiktok import TiktokChannel, TiktokPost, TiktokPostStats, TiktokUserStats
 
 logger = logging.getLogger(__name__)
-
-
-# data models
-
-
-class TiktokUserStats(Model):
-    follower_count: int
-    following_count: int
-    heart_count: int
-    video_count: int
-
-
-class TiktokChannel(Model):
-    id: str
-    """id as a internal integer"""
-    nickname: str
-    """To show as UI"""
-    handle: str
-    """In the twitter @handle format"""
-    description: str
-    """Profile description"""
-    avatar_url: str
-    """Profile avatar URL"""
-    stats: TiktokUserStats
-    """User aggregated stats"""
-
-    # # payment
-    # payment_email: str
-    # "
-
-
-class TiktokPost(Model):
-    id: str
-    title: str
-    description: str
-    url: str
-    views: int
-    last_updated: datetime
 
 
 class BackendState(SessionState, SyncedAsCamelCase, Model):
@@ -65,12 +27,16 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
     ]
     posts: list[TiktokPost] = [
         TiktokPost(
-            id="456",
-            title="Post 1",
-            description="Description 1",
-            url="https://www.tiktok.com/post1",
-            views=100,
-            last_updated=datetime.fromisoformat("2025-11-15T12:00:00Z"),
+            id="1",
+            description="post description",
+            url=None,
+            stats=TiktokPostStats(
+                play_count=1234,
+                like_count=100,
+                comment_count=32,
+                share_count=340,
+                save_count=450,
+            ),
         ),
     ]
 

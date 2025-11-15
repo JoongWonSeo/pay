@@ -159,28 +159,62 @@ export type TiktokChannel = {
 export type TiktokPost = {
     /**
      * Id
+     *
+     * id as a internal integer
      */
     id: string;
     /**
-     * Title
-     */
-    title: string;
-    /**
      * Description
+     *
+     * Post description
      */
     description: string;
     /**
      * Url
+     *
+     * Post URL, if available
      */
-    url: string;
+    url: string | null;
     /**
-     * Views
+     * Post aggregated stats
      */
-    views: number;
+    stats: TiktokPostStats;
+};
+
+/**
+ * TiktokPostStats
+ */
+export type TiktokPostStats = {
     /**
-     * Last Updated
+     * Play Count
+     *
+     * number of views/plays
      */
-    last_updated: string;
+    play_count: number;
+    /**
+     * Like Count
+     *
+     * number of likes
+     */
+    like_count: number;
+    /**
+     * Comment Count
+     *
+     * number of comments
+     */
+    comment_count: number;
+    /**
+     * Share Count
+     *
+     * number of shares
+     */
+    share_count: number;
+    /**
+     * Save Count
+     *
+     * number of saves/bookmarks
+     */
+    save_count: number;
 };
 
 /**

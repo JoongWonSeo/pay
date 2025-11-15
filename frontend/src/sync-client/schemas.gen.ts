@@ -61,12 +61,16 @@ export const BackendStateSchema = {
         posts: {
             default: [
                 {
-                    id: '456',
-                    title: 'Post 1',
-                    description: 'Description 1',
-                    url: 'https://www.tiktok.com/post1',
-                    views: 100,
-                    last_updated: '2025-11-15T12:00:00Z'
+                    id: '1',
+                    description: 'post description',
+                    url: null,
+                    stats: {
+                        comment_count: 32,
+                        like_count: 100,
+                        play_count: 1234,
+                        save_count: 450,
+                        share_count: 340
+                    }
                 }
             ],
             items: {
@@ -169,33 +173,67 @@ export const TiktokChannelSchema = {
 export const TiktokPostSchema = {
     properties: {
         id: {
+            description: 'id as a internal integer',
             title: 'Id',
             type: 'string'
         },
-        title: {
-            title: 'Title',
-            type: 'string'
-        },
         description: {
+            description: 'Post description',
             title: 'Description',
             type: 'string'
         },
         url: {
-            title: 'Url',
-            type: 'string'
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: 'Post URL, if available',
+            title: 'Url'
         },
-        views: {
-            title: 'Views',
-            type: 'integer'
-        },
-        last_updated: {
-            format: 'date-time',
-            title: 'Last Updated',
-            type: 'string'
+        stats: {
+            '$ref': '#/components/schemas/TiktokPostStats',
+            description: 'Post aggregated stats'
         }
     },
-    required: ['id', 'title', 'description', 'url', 'views', 'last_updated'],
+    required: ['id', 'description', 'url', 'stats'],
     title: 'TiktokPost',
+    type: 'object'
+} as const;
+
+export const TiktokPostStatsSchema = {
+    properties: {
+        play_count: {
+            description: 'number of views/plays',
+            title: 'Play Count',
+            type: 'integer'
+        },
+        like_count: {
+            description: 'number of likes',
+            title: 'Like Count',
+            type: 'integer'
+        },
+        comment_count: {
+            description: 'number of comments',
+            title: 'Comment Count',
+            type: 'integer'
+        },
+        share_count: {
+            description: 'number of shares',
+            title: 'Share Count',
+            type: 'integer'
+        },
+        save_count: {
+            description: 'number of saves/bookmarks',
+            title: 'Save Count',
+            type: 'integer'
+        }
+    },
+    required: ['play_count', 'like_count', 'comment_count', 'share_count', 'save_count'],
+    title: 'TiktokPostStats',
     type: 'object'
 } as const;
 

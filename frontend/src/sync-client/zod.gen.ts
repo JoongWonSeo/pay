@@ -26,15 +26,27 @@ export const zBackendStateTasksKeys = z.unknown();
 export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
 
 /**
+ * TiktokPostStats
+ */
+export const zTiktokPostStats = z.object({
+    play_count: z.int(),
+    like_count: z.int(),
+    comment_count: z.int(),
+    share_count: z.int(),
+    save_count: z.int()
+});
+
+/**
  * TiktokPost
  */
 export const zTiktokPost = z.object({
     id: z.string(),
-    title: z.string(),
     description: z.string(),
-    url: z.string(),
-    views: z.int(),
-    last_updated: z.iso.datetime()
+    url: z.union([
+        z.string(),
+        z.null()
+    ]),
+    stats: zTiktokPostStats
 });
 
 /**
@@ -108,12 +120,16 @@ export const zBackendState = z.object({
     ]),
     posts: z.array(zTiktokPost).default([
         {
-            id: '456',
-            title: 'Post 1',
-            description: 'Description 1',
-            url: 'https://www.tiktok.com/post1',
-            views: 100,
-            last_updated: '2025-11-15T12:00:00Z'
+            id: '1',
+            description: 'post description',
+            url: null,
+            stats: {
+                comment_count: 32,
+                like_count: 100,
+                play_count: 1234,
+                save_count: 450,
+                share_count: 340
+            }
         }
     ])
 });
