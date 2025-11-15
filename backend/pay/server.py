@@ -20,15 +20,20 @@ def read_root():
 sessions: dict[str, Session] = {}
 
 
-@app.websocket("/ws/{session_id}")
-async def websocket_endpoint(ws: WebSocket, session_id: str):
+@app.websocket("/ws")
+async def websocket_endpoint(ws: WebSocket):
+    session_id = "default"
+    logging.info(f"Websocket connection established for session: {session_id}")
     if session_id not in sessions:
+        logging.info(f"Creating new session: {session_id}")
         session = Session()
         sessions[session_id] = session
 
         # init session state
         with session:
-            session.state = HelloSync()
+            session.state = HelloSync(message="inited")
+    else:
+        logging.info(f"Session already exists: {session_id}")
 
     session = sessions[session_id]
 
