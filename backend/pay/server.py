@@ -8,6 +8,7 @@ from ws_sync.synced_model import registered_synced_models
 
 from pay.synced import BackendState
 
+logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
@@ -23,15 +24,14 @@ sessions: dict[str, Session] = {}
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(ws: WebSocket, session_id: str):
     if session_id not in sessions:
-        logging.info(f"Creating new session: {session_id}")
+        logger.info(f"Creating new session: {session_id}")
         session = Session()
-        sessions[session_id] = session
-
-        # init session state
         with session:
-            session.state = BackendState(message="inited")
+            session.state = BackendState()
+
+        sessions[session_id] = session  # save session to global sessions dict
     else:
-        logging.info(f"Session already exists: {session_id}")
+        logger.info(f"Session already exists: {session_id}")
         session = sessions[session_id]
 
     await session.handle_connection(ws)

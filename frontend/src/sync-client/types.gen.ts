@@ -9,7 +9,9 @@ export type ClientOptions = {
  *
  * Lists all action keys as enum values
  */
-export const BackendStateActionsKeys = {} as const;
+export const BackendStateActionsKeys = {
+    addChannel: 'add_channel'
+} as const;
 
 /**
  * BackendStateActionsKeys
@@ -24,7 +26,7 @@ export type BackendStateActionsKeys = typeof BackendStateActionsKeys[keyof typeo
  * Maps each action keys to its parameters
  */
 export type BackendStateActionsParams = {
-    [key: string]: unknown;
+    add_channel: BackendStateActionAddChannel;
 };
 
 /**
@@ -62,6 +64,13 @@ export type BackendState = {
      * Posts
      */
     posts: Array<TiktokPost>;
+};
+
+/**
+ * BackendStateActionAddChannel
+ */
+export type BackendStateActionAddChannel = {
+    channel: TiktokChannel;
 };
 
 /**

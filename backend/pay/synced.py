@@ -2,9 +2,11 @@
 import logging
 from datetime import datetime
 
-from ws_sync import SessionState, SyncedAsCamelCase, sync_all
+from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
 from pay.model import Model
+
+logger = logging.getLogger(__name__)
 
 
 # data models
@@ -25,7 +27,7 @@ class TiktokPost(Model):
     last_updated: datetime
 
 
-class BackendState(SyncedAsCamelCase, Model, SessionState):
+class BackendState(SessionState, SyncedAsCamelCase, Model):
     channels: list[TiktokChannel] = [
         TiktokChannel(
             id="123",
@@ -54,7 +56,12 @@ class BackendState(SyncedAsCamelCase, Model, SessionState):
     ]
 
     @sync_all()
-    def __model_post_init__(self):
-        logging.info(
+    def model_post_init(self, _):
+        logger.info(
             f"BackendState initialized with channels: {self.channels} and posts: {self.posts}"
         )
+
+    @remote_action
+    async def add_channel(self, channel: TiktokChannel):
+        self.channels.append(channel)
+        await self.sync(toast="Channel added")

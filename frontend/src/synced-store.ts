@@ -20,7 +20,10 @@ session.connect();
 
 // ========== state ========== //
 export const useBackend = createSyncedStore<BackendState>({
-  initialState: zBackendState.parse({}),
+  initialState: zBackendState.parse({
+    channels: [],
+    posts: [],
+  }),
   syncOptions: {
     key: "BackendState",
     session,
@@ -30,7 +33,7 @@ export const useBackend = createSyncedStore<BackendState>({
 // ========== actions ========== //
 const { setState: set, sync } = useBackend;
 
-export const helloSync = {
+export const backend = {
   // remote actions, delegate to backend by default
   ...sync.createDelegators<BackendStateActionsParams>()(
     BackendStateActionsKeys

@@ -3,14 +3,18 @@
 export const BackendStateActionsKeysSchema = {
     description: 'Lists all action keys as enum values',
     type: 'string',
-    enum: [],
+    enum: ['add_channel'],
     title: 'BackendStateActionsKeys'
 } as const;
 
 export const BackendStateActionsParamsSchema = {
     description: 'Maps each action keys to its parameters',
-    properties: {},
-    required: [],
+    properties: {
+        add_channel: {
+            '$ref': '#/components/schemas/BackendStateActionAddChannel'
+        }
+    },
+    required: ['add_channel'],
     title: 'BackendStateActionsParams',
     type: 'object'
 } as const;
@@ -63,7 +67,7 @@ export const BackendStateSchema = {
                     description: 'Description 1',
                     url: 'https://www.tiktok.com/post1',
                     views: 100,
-                    last_updated: '2025-11-15T11:46:35.280785'
+                    last_updated: '2025-11-15T12:07:11.965347'
                 }
             ],
             items: {
@@ -75,6 +79,17 @@ export const BackendStateSchema = {
     },
     required: ['channels', 'posts'],
     title: 'BackendState',
+    type: 'object'
+} as const;
+
+export const BackendStateActionAddChannelSchema = {
+    properties: {
+        channel: {
+            '$ref': '#/components/schemas/TiktokChannel'
+        }
+    },
+    required: ['channel'],
+    title: 'BackendStateActionAddChannel',
     type: 'object'
 } as const;
 

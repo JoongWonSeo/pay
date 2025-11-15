@@ -7,14 +7,9 @@ import { z } from 'zod';
  *
  * Lists all action keys as enum values
  */
-export const zBackendStateActionsKeys = z.unknown();
-
-/**
- * BackendStateActionsParams
- *
- * Maps each action keys to its parameters
- */
-export const zBackendStateActionsParams = z.record(z.string(), z.unknown());
+export const zBackendStateActionsKeys = z.enum([
+    'add_channel'
+]);
 
 /**
  * BackendStateTasksKeys
@@ -39,6 +34,22 @@ export const zTiktokChannel = z.object({
     description: z.string(),
     url: z.string(),
     payment_email: z.string()
+});
+
+/**
+ * BackendStateActionAddChannel
+ */
+export const zBackendStateActionAddChannel = z.object({
+    channel: zTiktokChannel
+});
+
+/**
+ * BackendStateActionsParams
+ *
+ * Maps each action keys to its parameters
+ */
+export const zBackendStateActionsParams = z.object({
+    add_channel: zBackendStateActionAddChannel
 });
 
 /**
@@ -80,7 +91,7 @@ export const zBackendState = z.object({
             description: 'Description 1',
             url: 'https://www.tiktok.com/post1',
             views: 100,
-            last_updated: '2025-11-15T11:46:35.280785'
+            last_updated: '2025-11-15T12:07:11.965347'
         }
     ])
 });
