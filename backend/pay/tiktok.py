@@ -77,7 +77,7 @@ class TiktokService:
             num_sessions=1,
             sleep_after=3,
             browser=os.getenv("TIKTOK_BROWSER", "chromium"),
-            headless=False,
+            # headless=False,
         )
 
     async def end(self):

@@ -26,6 +26,65 @@ export const zBackendStateTasksKeys = z.unknown();
 export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
 
 /**
+ * ChatMessage
+ */
+export const zChatMessage = z.object({
+    role: z.enum([
+        'payout_agent',
+        'creator'
+    ]),
+    content: z.string(),
+    timestamp: z.iso.datetime()
+});
+
+/**
+ * ChatBetweenAgentAndCreator
+ */
+export const zChatBetweenAgentAndCreator = z.object({
+    chat_history: z.array(zChatMessage).default([])
+});
+
+/**
+ * Payout
+ */
+export const zPayout = z.object({
+    chat_between_agent_and_creator: zChatBetweenAgentAndCreator,
+    number_of_views: z.union([
+        z.int(),
+        z.null()
+    ]).default(null),
+    determined_price_per_1k: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    determined_base_payout: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    determined_penalty: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    penalty_reason: z.union([
+        z.string(),
+        z.null()
+    ]).default(null),
+    determined_bonus: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    bonus_reason: z.union([
+        z.string(),
+        z.null()
+    ]).default(null),
+    determined_final_payout: z.union([
+        z.number(),
+        z.null()
+    ]).default(null),
+    date_paid: z.iso.datetime()
+});
+
+/**
  * TiktokPostEvaluation
  */
 export const zTiktokPostEvaluation = z.object({
@@ -64,14 +123,6 @@ export const zTiktokPostEvaluation = z.object({
         z.null()
     ]).default(null),
     estimated_ctr: z.union([
-        z.number(),
-        z.null()
-    ]).default(null),
-    determined_price_per_1k: z.union([
-        z.number(),
-        z.null()
-    ]).default(null),
-    determined_payout: z.union([
         z.number(),
         z.null()
     ]).default(null),
@@ -170,8 +221,6 @@ export const zBackendState = z.object({
     postEvaluations: z.record(z.string(), zTiktokPostEvaluation).default({
         1: {
             date_evaluated: null,
-            determined_payout: null,
-            determined_price_per_1k: null,
             estimated_ctr: 0.2,
             evaluation_text: null,
             id: '1',
@@ -181,5 +230,33 @@ export const zBackendState = z.object({
             target_group_fit: 'high'
         }
     }),
-    postPayouts: z.record(z.string(), z.number()).default({})
+    postPayouts: z.record(z.string(), z.array(zPayout)).default({
+        1: [
+            {
+                bonus_reason: 'No bonus',
+                chat_between_agent_and_creator: {
+                    chat_history: [
+                        {
+                            content: 'Hello, how are you?',
+                            role: 'payout_agent',
+                            timestamp: '2025-11-15T16:06:20.350360'
+                        },
+                        {
+                            content: "I'm good, thank you!",
+                            role: 'creator',
+                            timestamp: '2025-11-15T16:06:20.350369'
+                        }
+                    ]
+                },
+                date_paid: '2025-11-15T16:06:20.350372',
+                determined_base_payout: 100,
+                determined_bonus: 0,
+                determined_final_payout: 100,
+                determined_penalty: 0,
+                determined_price_per_1k: 1,
+                number_of_views: 100,
+                penalty_reason: 'No penalty'
+            }
+        ]
+    })
 });

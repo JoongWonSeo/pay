@@ -2,10 +2,12 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import Literal, override
+from typing import override
 
 from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
+from pay.agents.payout_agent import ChatBetweenAgentAndCreator, ChatMessage, Payout
+from pay.agents.post_evaluation_agent import TiktokPostEvaluation
 from pay.model import Model
 from pay.tiktok import TiktokChannel, TiktokPost, TiktokService
 
@@ -20,31 +22,6 @@ def _log_task_exception(task: asyncio.Task):
         pass  # Task cancellation is expected, don't log
     except Exception:
         logger.exception(f"Exception in task {task.get_name()}")
-
-
-class TiktokPostEvaluation(Model):
-    id: str | None = None
-    """id as a internal integer"""
-    product_mentioned: bool | None = None
-    """Whether the product is mentioned in the post"""
-    prominence_of_product: Literal["high", "medium", "low"] | None = None
-    """How prominent the product is in the post"""
-    target_group_fit: Literal["high", "medium", "low"] | None = None
-    """How well the post fits the target group"""
-    post_type: (
-        Literal["demo", "review", "product recommendation", "trend", "other"] | None
-    ) = None
-    """Type of post"""
-    estimated_ctr: float | None = None
-    """Estimated CTR (typically around 0.2% to 5%)"""
-    determined_price_per_1k: float | None = None
-    """Determined price per 1K views"""
-    determined_payout: float | None = None
-    """Determined payout based on all factors"""
-    date_evaluated: datetime | None = None
-    """Date evaluated"""
-    evaluation_text: str | None = None
-    """Evaluation"""
 
 
 class BackendState(SessionState, SyncedAsCamelCase, Model):
@@ -62,7 +39,36 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
         ),
     }
     """Post evaluations by post id"""
-    post_payouts: dict[str, float] = {}
+    post_payouts: dict[str, list[Payout]] = {
+        "1": [
+            Payout(
+                chat_between_agent_and_creator=ChatBetweenAgentAndCreator(
+                    chat_history=[
+                        ChatMessage(
+                            role="payout_agent",
+                            content="Hello, how are you?",
+                            timestamp=datetime.now(),
+                        ),
+                        ChatMessage(
+                            role="creator",
+                            content="I'm good, thank you!",
+                            timestamp=datetime.now(),
+                        ),
+                    ]
+                ),
+                number_of_views=100,
+                determined_price_per_1k=1,
+                determined_base_payout=100,
+                determined_penalty=0,
+                penalty_reason="No penalty",
+                determined_bonus=0,
+                bonus_reason="No bonus",
+                determined_final_payout=100,
+                date_paid=datetime.now(),
+            )
+        ]
+    }
+    """Payout history by post id"""
 
     @sync_all()
     def model_post_init(self, _):

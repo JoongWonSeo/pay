@@ -62,8 +62,6 @@ export const BackendStateSchema = {
             default: {
                 1: {
                     date_evaluated: null,
-                    determined_payout: null,
-                    determined_price_per_1k: null,
                     estimated_ctr: 0.2,
                     evaluation_text: null,
                     id: '1',
@@ -79,9 +77,41 @@ export const BackendStateSchema = {
         },
         postPayouts: {
             additionalProperties: {
-                type: 'number'
+                items: {
+                    '$ref': '#/components/schemas/Payout'
+                },
+                type: 'array'
             },
-            default: {},
+            default: {
+                1: [
+                    {
+                        bonus_reason: 'No bonus',
+                        chat_between_agent_and_creator: {
+                            chat_history: [
+                                {
+                                    content: 'Hello, how are you?',
+                                    role: 'payout_agent',
+                                    timestamp: '2025-11-15T16:06:20.350360'
+                                },
+                                {
+                                    content: "I'm good, thank you!",
+                                    role: 'creator',
+                                    timestamp: '2025-11-15T16:06:20.350369'
+                                }
+                            ]
+                        },
+                        date_paid: '2025-11-15T16:06:20.350372',
+                        determined_base_payout: 100,
+                        determined_bonus: 0,
+                        determined_final_payout: 100,
+                        determined_penalty: 0,
+                        determined_price_per_1k: 1,
+                        number_of_views: 100,
+                        penalty_reason: 'No penalty'
+                    }
+                ]
+            },
+            description: 'Payout history by post id',
             title: 'Postpayouts',
             type: 'object'
         }
@@ -99,6 +129,47 @@ export const BackendStateActionAddChannelSchema = {
     },
     required: ['channel'],
     title: 'BackendStateActionAddChannel',
+    type: 'object'
+} as const;
+
+export const ChatBetweenAgentAndCreatorSchema = {
+    properties: {
+        chat_history: {
+            default: [],
+            items: {
+                '$ref': '#/components/schemas/ChatMessage'
+            },
+            title: 'Chat History',
+            type: 'array'
+        }
+    },
+    required: ['chat_history'],
+    title: 'ChatBetweenAgentAndCreator',
+    type: 'object'
+} as const;
+
+export const ChatMessageSchema = {
+    properties: {
+        role: {
+            description: 'Role of the message sender',
+            enum: ['payout_agent', 'creator'],
+            title: 'Role',
+            type: 'string'
+        },
+        content: {
+            description: 'Content of the message',
+            title: 'Content',
+            type: 'string'
+        },
+        timestamp: {
+            description: 'Timestamp of the message',
+            format: 'date-time',
+            title: 'Timestamp',
+            type: 'string'
+        }
+    },
+    required: ['role', 'content', 'timestamp'],
+    title: 'ChatMessage',
     type: 'object'
 } as const;
 
@@ -136,6 +207,128 @@ export const CreateTiktokChannelSchema = {
     },
     required: ['id', 'nickname', 'handle', 'description', 'avatar_url', 'stats'],
     title: 'TiktokChannel',
+    type: 'object'
+} as const;
+
+export const PayoutSchema = {
+    properties: {
+        chat_between_agent_and_creator: {
+            '$ref': '#/components/schemas/ChatBetweenAgentAndCreator',
+            description: 'social context between the agent and the creator'
+        },
+        number_of_views: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Number of views of the post',
+            title: 'Number Of Views'
+        },
+        determined_price_per_1k: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined price per 1K views, based on the post evaluation',
+            title: 'Determined Price Per 1K'
+        },
+        determined_base_payout: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined base payout for the post, in USDC',
+            title: 'Determined Base Payout'
+        },
+        determined_penalty: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined penalty for the post, in USDC, so value of x means the payout is reduced by x USDC, always non-negative',
+            title: 'Determined Penalty'
+        },
+        penalty_reason: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Reason for the penalty',
+            title: 'Penalty Reason'
+        },
+        determined_bonus: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined bonus for the post, in USDC, so value of x means the payout is increased by x USDC, always non-negative',
+            title: 'Determined Bonus'
+        },
+        bonus_reason: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Reason for the bonus',
+            title: 'Bonus Reason'
+        },
+        determined_final_payout: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            default: null,
+            description: 'Determined final payout based on all factors, in USDC',
+            title: 'Determined Final Payout'
+        },
+        date_paid: {
+            description: 'Date paid',
+            format: 'date-time',
+            title: 'Date Paid',
+            type: 'string'
+        }
+    },
+    required: ['chat_between_agent_and_creator', 'number_of_views', 'determined_price_per_1k', 'determined_base_payout', 'determined_penalty', 'penalty_reason', 'determined_bonus', 'bonus_reason', 'determined_final_payout', 'date_paid'],
+    title: 'Payout',
     type: 'object'
 } as const;
 
@@ -304,32 +497,6 @@ export const TiktokPostEvaluationSchema = {
             description: 'Estimated CTR (typically around 0.2% to 5%)',
             title: 'Estimated Ctr'
         },
-        determined_price_per_1k: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            default: null,
-            description: 'Determined price per 1K views',
-            title: 'Determined Price Per 1K'
-        },
-        determined_payout: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            default: null,
-            description: 'Determined payout based on all factors',
-            title: 'Determined Payout'
-        },
         date_evaluated: {
             anyOf: [
                 {
@@ -358,7 +525,7 @@ export const TiktokPostEvaluationSchema = {
             title: 'Evaluation Text'
         }
     },
-    required: ['id', 'product_mentioned', 'prominence_of_product', 'target_group_fit', 'post_type', 'estimated_ctr', 'determined_price_per_1k', 'determined_payout', 'date_evaluated', 'evaluation_text'],
+    required: ['id', 'product_mentioned', 'prominence_of_product', 'target_group_fit', 'post_type', 'estimated_ctr', 'date_evaluated', 'evaluation_text'],
     title: 'TiktokPostEvaluation',
     type: 'object'
 } as const;

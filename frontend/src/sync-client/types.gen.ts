@@ -76,9 +76,11 @@ export type BackendState = {
     };
     /**
      * Postpayouts
+     *
+     * Payout history by post id
      */
     postPayouts: {
-        [key: string]: number;
+        [key: string]: Array<Payout>;
     };
 };
 
@@ -87,6 +89,40 @@ export type BackendState = {
  */
 export type BackendStateActionAddChannel = {
     channel: CreateTiktokChannel;
+};
+
+/**
+ * ChatBetweenAgentAndCreator
+ */
+export type ChatBetweenAgentAndCreator = {
+    /**
+     * Chat History
+     */
+    chat_history: Array<ChatMessage>;
+};
+
+/**
+ * ChatMessage
+ */
+export type ChatMessage = {
+    /**
+     * Role
+     *
+     * Role of the message sender
+     */
+    role: 'payout_agent' | 'creator';
+    /**
+     * Content
+     *
+     * Content of the message
+     */
+    content: string;
+    /**
+     * Timestamp
+     *
+     * Timestamp of the message
+     */
+    timestamp: string;
 };
 
 /**
@@ -127,6 +163,70 @@ export type CreateTiktokChannel = {
      * User aggregated stats
      */
     stats: TiktokUserStats;
+};
+
+/**
+ * Payout
+ */
+export type Payout = {
+    /**
+     * social context between the agent and the creator
+     */
+    chat_between_agent_and_creator: ChatBetweenAgentAndCreator;
+    /**
+     * Number Of Views
+     *
+     * Number of views of the post
+     */
+    number_of_views: number | null;
+    /**
+     * Determined Price Per 1K
+     *
+     * Determined price per 1K views, based on the post evaluation
+     */
+    determined_price_per_1k: number | null;
+    /**
+     * Determined Base Payout
+     *
+     * Determined base payout for the post, in USDC
+     */
+    determined_base_payout: number | null;
+    /**
+     * Determined Penalty
+     *
+     * Determined penalty for the post, in USDC, so value of x means the payout is reduced by x USDC, always non-negative
+     */
+    determined_penalty: number | null;
+    /**
+     * Penalty Reason
+     *
+     * Reason for the penalty
+     */
+    penalty_reason: string | null;
+    /**
+     * Determined Bonus
+     *
+     * Determined bonus for the post, in USDC, so value of x means the payout is increased by x USDC, always non-negative
+     */
+    determined_bonus: number | null;
+    /**
+     * Bonus Reason
+     *
+     * Reason for the bonus
+     */
+    bonus_reason: string | null;
+    /**
+     * Determined Final Payout
+     *
+     * Determined final payout based on all factors, in USDC
+     */
+    determined_final_payout: number | null;
+    /**
+     * Date Paid
+     *
+     * Date paid
+     */
+    date_paid: string;
 };
 
 /**
@@ -249,18 +349,6 @@ export type TiktokPostEvaluation = {
      * Estimated CTR (typically around 0.2% to 5%)
      */
     estimated_ctr: number | null;
-    /**
-     * Determined Price Per 1K
-     *
-     * Determined price per 1K views
-     */
-    determined_price_per_1k: number | null;
-    /**
-     * Determined Payout
-     *
-     * Determined payout based on all factors
-     */
-    determined_payout: number | null;
     /**
      * Date Evaluated
      *
