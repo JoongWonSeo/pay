@@ -43,6 +43,8 @@ export default function App() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const state = useBackend();
 
+  console.log("Backend state:", state);
+
   const renderContent = () => {
     if (currentPage === "home") {
       return (
@@ -329,6 +331,8 @@ export default function App() {
         );
         const channelPosts = state.postsByChannelId[selectedChannelId] || [];
         const selectedPost = channelPosts.find((p) => p.id === selectedPostId);
+        // @ts-expect-error - postEvaluations will be available after type regeneration
+        const evaluation = state.postEvaluations?.[selectedPostId];
 
         if (!selectedPost || !selectedChannel) {
           setSelectedPostId(null);
@@ -340,25 +344,55 @@ export default function App() {
           100,
           Math.floor((selectedPost.stats.play_count / 1000) * 10)
         );
-        const paymentPerThousandViews = 1.42; // $1.42 per 1K views
+
+        // Calculate final rate per 1k views based on base rate + bonuses/penalties
+        const baseRate = 1.0;
+        let penaltyAmount = 0;
+        let bonusAmount = 0;
+
+        if (!evaluation?.product_mentioned) {
+          penaltyAmount = 0.5;
+        }
+
+        if (evaluation?.prominence_of_product === "high") {
+          bonusAmount = 0.2;
+        } else if (evaluation?.prominence_of_product === "medium") {
+          bonusAmount = 0.1;
+        }
+
+        const paymentPerThousandViews = baseRate - penaltyAmount + bonusAmount;
         const totalPayment =
+          // @ts-expect-error - using snake_case to match runtime data
+          evaluation?.determined_payout ??
           (selectedPost.stats.play_count / 1000) * paymentPerThousandViews;
 
+        // Get payout history for this post
+        // @ts-expect-error - using snake_case to match runtime data
+        const payouts = state.postPayouts?.[selectedPostId] || [];
+        const latestPayout = payouts[0]; // Get the most recent payout
+        // @ts-expect-error - using snake_case to match runtime data
+        const chatHistory = latestPayout?.chat_between_agent_and_creator?.chat_history || [];
+
         return (
-          <div className="flex flex-1 flex-col gap-6 p-8">
+          <div className="flex flex-1 gap-6 p-8">
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col gap-6">
             {/* Post Header */}
-            <div className="flex items-start gap-6 pb-6 border-b">
+            <div className="flex items-start gap-6 pb-6">
               <img
                 src={selectedPost.dynamic_cover_url}
                 alt="Post thumbnail"
                 className="w-64 h-80 rounded-xl object-cover"
               />
               <div className="flex-1">
-                <h1 className="text-3xl font-bold mb-4">Post Details</h1>
+                <h1 className="text-3xl font-bold mb-2">Post Details</h1>
+                <p className="text-sm text-muted-foreground mb-4">
+                  ID: {selectedPost.id}
+                </p>
                 <p className="text-muted-foreground mb-4">
                   {selectedPost.description}
                 </p>
-                <div className="flex gap-2 items-center text-sm text-muted-foreground mb-4">
+                <div className="flex gap-2 items-center text-sm text-muted-foreground mb-6">
                   <span>
                     Posted on{" "}
                     {new Date(selectedPost.date_posted).toLocaleDateString(
@@ -384,91 +418,218 @@ export default function App() {
                     </>
                   )}
                 </div>
+
+                {/* Performance Stats - Minimal */}
+                <div className="flex gap-6 text-sm mb-4">
+                  <div className="flex items-center gap-1.5">
+                    <Eye className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {selectedPost.stats.play_count.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Heart className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {selectedPost.stats.like_count.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <MessageCircle className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {selectedPost.stats.comment_count.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {selectedPost.stats.share_count.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Impact:</span>
+                    <span className="font-medium">{impactScore}%</span>
+                  </div>
+                </div>
+
+                {/* Payment Info - Compact */}
+                <div className="rounded-lg border bg-card p-4 inline-block">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Total Payment{" "}
+                    {evaluation && (
+                      <span className="text-yellow-600">(Pending)</span>
+                    )}
+                  </p>
+                  <p className="text-xl font-bold text-green-600">
+                    $
+                    {totalPayment.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Stats Grid */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Performance Stats</h2>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="rounded-xl border bg-card p-6">
-                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                    <Eye className="w-4 h-4" />
-                    <p className="text-sm font-medium">Views</p>
-                  </div>
-                  <h3 className="text-2xl font-bold">
-                    {selectedPost.stats.play_count.toLocaleString()}
-                  </h3>
-                </div>
-                <div className="rounded-xl border bg-card p-6">
-                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                    <Heart className="w-4 h-4" />
-                    <p className="text-sm font-medium">Likes</p>
-                  </div>
-                  <h3 className="text-2xl font-bold">
-                    {selectedPost.stats.like_count.toLocaleString()}
-                  </h3>
-                </div>
-                <div className="rounded-xl border bg-card p-6">
-                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                    <MessageCircle className="w-4 h-4" />
-                    <p className="text-sm font-medium">Comments</p>
-                  </div>
-                  <h3 className="text-2xl font-bold">
-                    {selectedPost.stats.comment_count.toLocaleString()}
-                  </h3>
-                </div>
-                <div className="rounded-xl border bg-card p-6">
-                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                    <Share2 className="w-4 h-4" />
-                    <p className="text-sm font-medium">Shares</p>
-                  </div>
-                  <h3 className="text-2xl font-bold">
-                    {selectedPost.stats.share_count.toLocaleString()}
-                  </h3>
-                </div>
-                <div className="rounded-xl border bg-card p-6">
-                  <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                    <p className="text-sm font-medium">Impact Score</p>
-                  </div>
-                  <h3 className="text-2xl font-bold">{impactScore}%</h3>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Info */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Payment Details</h2>
-              <div className="rounded-xl border bg-card p-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Rate per 1K Views
-                    </p>
-                    <p className="text-xl font-semibold">
-                      ${paymentPerThousandViews.toFixed(2)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Total Payment
-                    </p>
-                    <p className="text-2xl font-bold">
-                      $
-                      {totalPayment.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Separator className="mb-6" />
 
             {/* AI Analysis */}
             <div>
               <h2 className="text-2xl font-bold mb-4">AI Analysis</h2>
-              <div className="rounded-xl border bg-card p-6">
+              {evaluation ? (
+                <div className="space-y-6">
+                  {/* Main Layout: Left Bar + Right Column */}
+                  <div className="flex gap-6">
+                    {/* Left: Content Evaluation Bar */}
+                    <div className="w-64 shrink-0 space-y-3">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Content Evaluation
+                      </h3>
+                      <div className="p-3 rounded-lg border">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Post Type
+                        </p>
+                        <p className="font-semibold capitalize">
+                          {evaluation.post_type || "N/A"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Product Mentioned
+                        </p>
+                        <p className="font-semibold">
+                          {evaluation.product_mentioned ? "Yes" : "No"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Product Prominence
+                        </p>
+                        <p className="font-semibold capitalize">
+                          {evaluation.prominence_of_product || "N/A"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Target Fit
+                        </p>
+                        <p className="font-semibold capitalize">
+                          {evaluation.target_group_fit || "N/A"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg border">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Estimated CTR
+                        </p>
+                        <p className="font-semibold">
+                          {evaluation.estimated_ctr
+                            ? `${evaluation.estimated_ctr.toFixed(2)}%`
+                            : "N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Reasoning Column */}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Evaluation Reasoning
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {evaluation.evaluation_text ||
+                          "No evaluation text available."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom: Payment Breakdown */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">
+                      Payment Calculation Breakdown
+                    </h3>
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full">
+                        <tbody>
+                          <tr>
+                            <td className="p-3 text-muted-foreground">Base Rate per 1K Views</td>
+                            <td className="p-3 text-right font-semibold">$1.00</td>
+                          </tr>
+                          {!evaluation.product_mentioned && (
+                            <tr className="bg-red-50/50 dark:bg-red-950/20">
+                              <td className="p-3 text-muted-foreground">Product Not Mentioned Penalty</td>
+                              <td className="p-3 text-right font-semibold text-red-600">-50%</td>
+                            </tr>
+                          )}
+                          {evaluation.prominence_of_product === "high" && (
+                            <tr className="bg-green-50/50 dark:bg-green-950/20">
+                              <td className="p-3 text-muted-foreground">High Prominence Bonus</td>
+                              <td className="p-3 text-right font-semibold text-green-600">+20%</td>
+                            </tr>
+                          )}
+                          {evaluation.prominence_of_product === "medium" && (
+                            <tr className="bg-green-50/50 dark:bg-green-950/20">
+                              <td className="p-3 text-muted-foreground">Medium Prominence Bonus</td>
+                              <td className="p-3 text-right font-semibold text-green-600">+10%</td>
+                            </tr>
+                          )}
+                          <tr className="bg-muted/30">
+                            <td className="p-3 font-medium">Final Rate per 1K Views</td>
+                            <td className="p-3 text-right font-bold">
+                              ${paymentPerThousandViews.toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="p-3 text-muted-foreground">
+                              Number of Views ({selectedPost.stats.play_count.toLocaleString()})
+                            </td>
+                            <td className="p-3 text-right font-semibold">
+                              ×{(selectedPost.stats.play_count / 1000).toFixed(1)}K
+                            </td>
+                          </tr>
+                          <tr className="bg-muted/30">
+                            <td className="p-3 font-medium">Base Payout</td>
+                            <td className="p-3 text-right font-bold">
+                              $
+                              {(latestPayout?.determined_base_payout || totalPayment).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </td>
+                          </tr>
+                          {latestPayout?.determined_bonus && latestPayout.determined_bonus > 0 && (
+                            <tr className="bg-green-50/50 dark:bg-green-950/20">
+                              <td className="p-3 text-muted-foreground">
+                                Bonus {latestPayout?.bonus_reason && `(${latestPayout.bonus_reason})`}
+                              </td>
+                              <td className="p-3 text-right font-semibold text-green-600">
+                                +${latestPayout.determined_bonus.toFixed(2)}
+                              </td>
+                            </tr>
+                          )}
+                          {latestPayout?.determined_penalty && latestPayout.determined_penalty > 0 && (
+                            <tr className="bg-red-50/50 dark:bg-red-950/20">
+                              <td className="p-3 text-muted-foreground">
+                                Penalty {latestPayout?.penalty_reason && `(${latestPayout.penalty_reason})`}
+                              </td>
+                              <td className="p-3 text-right font-semibold text-red-600">
+                                -${latestPayout.determined_penalty.toFixed(2)}
+                              </td>
+                            </tr>
+                          )}
+                          <tr className="border-t-2 border-primary/20 bg-primary/10">
+                            <td className="p-3 font-bold text-lg">Final Payout</td>
+                            <td className="p-3 text-right font-bold text-lg text-primary">
+                              $
+                              {(latestPayout?.determined_final_payout || totalPayment).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">
@@ -485,6 +646,49 @@ export default function App() {
                     <p className="text-muted-foreground italic">
                       Analysis coming soon...
                     </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            </div>
+
+            {/* Right Chat Sidebar */}
+            <div className="w-80 shrink-0">
+              <div className="sticky top-8">
+                <div className="rounded-xl border bg-card">
+                  <div className="p-4 border-b">
+                    <h3 className="font-semibold">Agent Chat History</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Conversation between AI and creator
+                    </p>
+                  </div>
+                  <div className="p-4 space-y-3 max-h-[calc(100vh-12rem)] overflow-y-auto">
+                    {chatHistory.length > 0 ? (
+                      chatHistory.map((message: any, index: number) => (
+                        <div
+                          key={index}
+                          className={`p-3 rounded-lg ${
+                            message.role === "payout_agent"
+                              ? "bg-primary/10 ml-2"
+                              : "bg-muted mr-2"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-semibold">
+                              {message.role === "payout_agent" ? "AI Agent" : "Creator"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(message.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <p className="text-sm">{message.content}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic text-center py-8">
+                        No chat history available
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

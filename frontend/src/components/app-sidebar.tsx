@@ -3,6 +3,7 @@ import * as React from "react"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -67,6 +68,14 @@ export function AppSidebar({ currentPage, onNavigate, ...props }: AppSidebarProp
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <div className="p-4 border-t">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">Budget Remaining</p>
+            <p className="text-2xl font-bold text-primary">$7,000.00</p>
+          </div>
+        </div>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
