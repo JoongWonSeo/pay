@@ -62,18 +62,7 @@ export const BackendStateSchema = {
             additionalProperties: {
                 '$ref': '#/components/schemas/TiktokPostEvaluation'
             },
-            default: {
-                7571400659203919106: {
-                    date_evaluated: null,
-                    estimated_ctr: 0.2,
-                    evaluation_text: null,
-                    id: '7571400659203919106',
-                    post_type: 'demo',
-                    product_mentioned: true,
-                    prominence_of_product: 'high',
-                    target_group_fit: 'high'
-                }
-            },
+            default: {},
             description: 'Post evaluations by post id',
             title: 'Postevaluations',
             type: 'object'

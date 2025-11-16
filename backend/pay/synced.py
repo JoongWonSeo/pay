@@ -6,7 +6,12 @@ from typing import override
 
 from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
-from pay.agents.payout_agent import Payout, PayoutAgentService
+from pay.agents.payout_agent import (
+    ChatBetweenAgentAndCreator,
+    ChatMessage,
+    Payout,
+    PayoutAgentService,
+)
 from pay.agents.post_evaluation_agent import TiktokPostEvaluation
 from pay.model import Model
 from pay.tiktok import TiktokChannel, TiktokPost, TiktokService
@@ -27,17 +32,7 @@ def _log_task_exception(task: asyncio.Task):
 class BackendState(SessionState, SyncedAsCamelCase, Model):
     channels: list[TiktokChannel] = []
     posts_by_channel_id: dict[str, list[TiktokPost]] = {}
-    post_evaluations: dict[str, TiktokPostEvaluation] = {
-        # mocked data
-        "7571400659203919106": TiktokPostEvaluation(
-            id="7571400659203919106",
-            product_mentioned=True,
-            prominence_of_product="high",
-            target_group_fit="high",
-            post_type="demo",
-            estimated_ctr=0.2,
-        ),
-    }
+    post_evaluations: dict[str, TiktokPostEvaluation] = {}
     """Post evaluations by post id"""
     post_payouts: dict[str, list[Payout]] = {}
     """Payout history by post id"""
@@ -110,22 +105,41 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
 
     @remote_action
     async def evaluate_and_pay_for_post(self, channel_id: str, post_id: str):
-        channel = next(channel for channel in self.channels if channel.id == channel_id)
-        post = next(
-            post for post in self.posts_by_channel_id[channel_id] if post.id == post_id
-        )
-        post_evaluation = self.post_evaluations[post_id]
-        payout = next(
-            payout for payout in self.post_payouts[post_id] if payout.date_paid is None
-        )
+        try:
+            channel = next(
+                channel for channel in self.channels if channel.id == channel_id
+            )
+            post = next(
+                post
+                for post in self.posts_by_channel_id[channel_id]
+                if post.id == post_id
+            )
+            post_evaluation = self.post_evaluations[post_id]
 
-        final_payout = await PayoutAgentService.evaluate_and_pay_for_post(
-            creator_channel=channel,
-            post=post,
-            post_evaluation=post_evaluation,
-            chat_between_agent_and_creator=payout.chat_between_agent_and_creator,
-            destination_wallet_address="0x063c106d59a9b7aff602e7f1df600a9e10ba15de",
-            max_budget=10,
-        )
-        self.post_payouts[post_id].append(final_payout)
-        await self.sync(toast="Payout completed")
+            final_payout = await PayoutAgentService.evaluate_and_pay_for_post(
+                creator_channel=channel,
+                post=post,
+                post_evaluation=post_evaluation,
+                chat_between_agent_and_creator=ChatBetweenAgentAndCreator(
+                    chat_history=[
+                        ChatMessage(
+                            role="creator",
+                            content="Hi I've just created my post, and I'm proud of the quality of the content",
+                            timestamp=datetime.now(),
+                        )
+                    ]
+                ),
+                destination_wallet_address="0x063c106d59a9b7aff602e7f1df600a9e10ba15de",
+                max_budget=4,
+            )
+            if not self.post_payouts.get(post_id):
+                self.post_payouts[post_id] = []
+            self.post_payouts[post_id].append(final_payout)
+            await self.sync(
+                toast=f"Payout completed: {final_payout.determined_final_payout} USDC"
+            )
+        except Exception as e:
+            logger.exception(f"Error evaluating and paying for post {post_id}: {e}")
+            await self.sync(
+                toast=f"Error evaluating and paying for post {post_id}: {e}"
+            )

@@ -228,17 +228,6 @@ export const zTiktokChannel = z.object({
 export const zBackendState = z.object({
     channels: z.array(zTiktokChannel).default([]),
     postsByChannelId: z.record(z.string(), z.array(zTiktokPost)).default({}),
-    postEvaluations: z.record(z.string(), zTiktokPostEvaluation).default({
-        7571400659203919106: {
-            date_evaluated: null,
-            estimated_ctr: 0.2,
-            evaluation_text: null,
-            id: '7571400659203919106',
-            post_type: 'demo',
-            product_mentioned: true,
-            prominence_of_product: 'high',
-            target_group_fit: 'high'
-        }
-    }),
+    postEvaluations: z.record(z.string(), zTiktokPostEvaluation).default({}),
     postPayouts: z.record(z.string(), z.array(zPayout)).default({})
 });

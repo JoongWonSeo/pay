@@ -25,6 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { toast } from "sonner";
 import { backend, useBackend } from "./synced-store";
 
 const chartData = [
@@ -457,6 +458,7 @@ export default function App() {
                         </p>
                         <Button
                           onClick={() => {
+                            toast.info("Evaluating and processing payment...");
                             backend.evaluateAndPayForPost({
                               channelId: selectedChannelId,
                               postId: selectedPostId,
