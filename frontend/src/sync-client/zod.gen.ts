@@ -8,7 +8,8 @@ import { z } from 'zod';
  * Lists all action keys as enum values
  */
 export const zBackendStateActionsKeys = z.enum([
-    'add_channel'
+    'add_channel',
+    'evaluate_and_pay_for_post'
 ]);
 
 /**
@@ -24,6 +25,14 @@ export const zBackendStateTasksKeys = z.unknown();
  * Maps each task key to its parameters
  */
 export const zBackendStateTasksParams = z.record(z.string(), z.unknown());
+
+/**
+ * BackendStateActionEvaluateAndPayForPost
+ */
+export const zBackendStateActionEvaluateAndPayForPost = z.object({
+    channelId: z.string(),
+    postId: z.string()
+});
 
 /**
  * ChatMessage
@@ -197,7 +206,8 @@ export const zBackendStateActionAddChannel = z.object({
  * Maps each action keys to its parameters
  */
 export const zBackendStateActionsParams = z.object({
-    add_channel: zBackendStateActionAddChannel
+    add_channel: zBackendStateActionAddChannel,
+    evaluate_and_pay_for_post: zBackendStateActionEvaluateAndPayForPost
 });
 
 /**
@@ -219,44 +229,16 @@ export const zBackendState = z.object({
     channels: z.array(zTiktokChannel).default([]),
     postsByChannelId: z.record(z.string(), z.array(zTiktokPost)).default({}),
     postEvaluations: z.record(z.string(), zTiktokPostEvaluation).default({
-        1: {
+        7571400659203919106: {
             date_evaluated: null,
             estimated_ctr: 0.2,
             evaluation_text: null,
-            id: '1',
+            id: '7571400659203919106',
             post_type: 'demo',
             product_mentioned: true,
             prominence_of_product: 'high',
             target_group_fit: 'high'
         }
     }),
-    postPayouts: z.record(z.string(), z.array(zPayout)).default({
-        1: [
-            {
-                bonus_reason: 'The post is well-crafted and engaging',
-                chat_between_agent_and_creator: {
-                    chat_history: [
-                        {
-                            content: 'Hello, how are you?',
-                            role: 'payout_agent',
-                            timestamp: '2025-11-15T16:07:39.151057'
-                        },
-                        {
-                            content: "I'm good, thank you!",
-                            role: 'creator',
-                            timestamp: '2025-11-15T16:07:39.151064'
-                        }
-                    ]
-                },
-                date_paid: '2025-11-15T16:07:39.151067',
-                determined_base_payout: 100,
-                determined_bonus: 30,
-                determined_final_payout: 120,
-                determined_penalty: 10,
-                determined_price_per_1k: 1,
-                number_of_views: 100,
-                penalty_reason: 'The post is not relevant to the target group'
-            }
-        ]
-    })
+    postPayouts: z.record(z.string(), z.array(zPayout)).default({})
 });

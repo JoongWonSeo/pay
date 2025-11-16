@@ -33,8 +33,10 @@ class TiktokChannel(Model):
     """User aggregated stats"""
 
     # # payment
-    # payment_email: str
-    # "
+    # locus_wallet_address: str
+    # """Locus wallet address"""
+    # locus_wallet_address_name: str | None = None
+    # """Locus wallet address name"""
 
 
 #  ========= post ========= #

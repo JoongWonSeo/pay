@@ -24,7 +24,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useBackend } from "./synced-store";
+import { useBackend, backend } from "./synced-store";
+import { Button } from "@/components/ui/button";
 
 const chartData = [
   { month: "Jan", views: 8.2, cost: 1.52 },
@@ -41,6 +42,7 @@ export default function App() {
     null
   );
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isEvaluatingPost, setIsEvaluatingPost] = useState(false);
   const state = useBackend();
 
   console.log("Backend state:", state);
@@ -452,20 +454,38 @@ export default function App() {
                 </div>
 
                 {/* Payment Info - Compact */}
-                <div className="rounded-lg border bg-card p-4 inline-block">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Total Payment{" "}
-                    {evaluation && (
-                      <span className="text-yellow-600">(Pending)</span>
-                    )}
-                  </p>
-                  <p className="text-xl font-bold text-green-600">
-                    $
-                    {totalPayment.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
+                <div className="flex gap-4 items-center">
+                  <div className="rounded-lg border bg-card p-4 inline-block">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Total Payment{" "}
+                      {evaluation && (
+                        <span className="text-yellow-600">(Pending)</span>
+                      )}
+                    </p>
+                    <p className="text-xl font-bold text-green-600">
+                      $
+                      {totalPayment.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      setIsEvaluatingPost(true);
+                      try {
+                        await backend.evaluateAndPayForPost({
+                          channelId: selectedChannelId,
+                          postId: selectedPostId,
+                        });
+                      } finally {
+                        setIsEvaluatingPost(false);
+                      }
+                    }}
+                    disabled={isEvaluatingPost}
+                  >
+                    {isEvaluatingPost ? "Evaluating..." : "Evaluate & Pay"}
+                  </Button>
                 </div>
               </div>
             </div>

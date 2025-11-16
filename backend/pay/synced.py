@@ -6,7 +6,7 @@ from typing import override
 
 from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
-from pay.agents.payout_agent import ChatBetweenAgentAndCreator, ChatMessage, Payout
+from pay.agents.payout_agent import ChatMessage, Payout, PayoutAgentService
 from pay.agents.post_evaluation_agent import TiktokPostEvaluation
 from pay.model import Model
 from pay.tiktok import TiktokChannel, TiktokPost, TiktokService
@@ -39,35 +39,7 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
         ),
     }
     """Post evaluations by post id"""
-    post_payouts: dict[str, list[Payout]] = {
-        "1": [
-            Payout(
-                chat_between_agent_and_creator=ChatBetweenAgentAndCreator(
-                    chat_history=[
-                        ChatMessage(
-                            role="payout_agent",
-                            content="Hello, how are you?",
-                            timestamp=datetime.now(),
-                        ),
-                        ChatMessage(
-                            role="creator",
-                            content="I'm good, thank you!",
-                            timestamp=datetime.now(),
-                        ),
-                    ]
-                ),
-                number_of_views=100,
-                determined_price_per_1k=1,
-                determined_base_payout=100,
-                determined_penalty=10,
-                penalty_reason="The post is not relevant to the target group",
-                determined_bonus=30,
-                bonus_reason="The post is well-crafted and engaging",
-                determined_final_payout=120,
-                date_paid=datetime.now(),
-            )
-        ]
-    }
+    post_payouts: dict[str, list[Payout]] = {}
     """Payout history by post id"""
 
     @sync_all()
@@ -140,8 +112,16 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
 
         determined_price_per_1k = round(base_price, 2)
         base_payout = round((post.stats.play_count / 1000) * determined_price_per_1k, 2)
-        penalty_payout = round((post.stats.play_count / 1000) * penalty_amount, 2) if penalty_amount > 0 else 0
-        bonus_payout = round((post.stats.play_count / 1000) * bonus_amount, 2) if bonus_amount > 0 else 0
+        penalty_payout = (
+            round((post.stats.play_count / 1000) * penalty_amount, 2)
+            if penalty_amount > 0
+            else 0
+        )
+        bonus_payout = (
+            round((post.stats.play_count / 1000) * bonus_amount, 2)
+            if bonus_amount > 0
+            else 0
+        )
         determined_payout = round(base_payout - penalty_payout + bonus_payout, 2)
 
         evaluation_text = f"This {post_type} post shows {'strong' if product_mentioned else 'no'} product presence with {prominence} prominence. The content aligns {target_fit} with our target audience. Based on engagement metrics and content quality, we estimate a {estimated_ctr:.2f}% CTR. The determined payout reflects the post's impact score and alignment with brand objectives."
@@ -182,33 +162,33 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
             target_group_fit=target_fit,
             post_type=post_type,
             estimated_ctr=round(estimated_ctr, 2),
-            determined_price_per_1k=determined_price_per_1k,
-            determined_payout=determined_payout,
             date_evaluated=datetime.now(),
             evaluation_text=evaluation_text,
         )
-
-        # Add payout with chat history
-        payout = Payout(
-            chat_between_agent_and_creator=ChatBetweenAgentAndCreator(
-                chat_history=chat_history
-            ),
-            number_of_views=post.stats.play_count,
-            determined_price_per_1k=determined_price_per_1k,
-            determined_base_payout=base_payout,
-            determined_penalty=penalty_payout,
-            penalty_reason=penalty_reason,
-            determined_bonus=bonus_payout,
-            bonus_reason=bonus_reason,
-            determined_final_payout=determined_payout,
-            date_paid=datetime.now(),
-        )
-
-        if post.id not in self.post_payouts:
-            self.post_payouts[post.id] = []
-        self.post_payouts[post.id].append(payout)
 
     @remote_action
     async def add_channel(self, channel: TiktokChannel):
         self.channels.append(channel)
         await self.sync(toast="Channel added")
+
+    @remote_action
+    async def evaluate_and_pay_for_post(self, channel_id: str, post_id: str):
+        channel = next(channel for channel in self.channels if channel.id == channel_id)
+        post = next(
+            post for post in self.posts_by_channel_id[channel_id] if post.id == post_id
+        )
+        post_evaluation = self.post_evaluations[post_id]
+        payout = next(
+            payout for payout in self.post_payouts[post_id] if payout.date_paid is None
+        )
+
+        final_payout = await PayoutAgentService.evaluate_and_pay_for_post(
+            creator_channel=channel,
+            post=post,
+            post_evaluation=post_evaluation,
+            chat_between_agent_and_creator=payout.chat_between_agent_and_creator,
+            destination_wallet_address="0x063c106d59a9b7aff602e7f1df600a9e10ba15de",
+            max_budget=100,
+        )
+        self.post_payouts[post_id].append(final_payout)
+        await self.sync(toast="Payout completed")

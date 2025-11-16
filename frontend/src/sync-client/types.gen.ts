@@ -10,7 +10,8 @@ export type ClientOptions = {
  * Lists all action keys as enum values
  */
 export const BackendStateActionsKeys = {
-    addChannel: 'add_channel'
+    addChannel: 'add_channel',
+    evaluateAndPayForPost: 'evaluate_and_pay_for_post'
 } as const;
 
 /**
@@ -27,6 +28,7 @@ export type BackendStateActionsKeys = typeof BackendStateActionsKeys[keyof typeo
  */
 export type BackendStateActionsParams = {
     add_channel: BackendStateActionAddChannel;
+    evaluate_and_pay_for_post: BackendStateActionEvaluateAndPayForPost;
 };
 
 /**
@@ -89,6 +91,20 @@ export type BackendState = {
  */
 export type BackendStateActionAddChannel = {
     channel: CreateTiktokChannel;
+};
+
+/**
+ * BackendStateActionEvaluateAndPayForPost
+ */
+export type BackendStateActionEvaluateAndPayForPost = {
+    /**
+     * Channelid
+     */
+    channelId: string;
+    /**
+     * Postid
+     */
+    postId: string;
 };
 
 /**

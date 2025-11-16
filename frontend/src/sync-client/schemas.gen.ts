@@ -3,7 +3,7 @@
 export const BackendStateActionsKeysSchema = {
     description: 'Lists all action keys as enum values',
     type: 'string',
-    enum: ['add_channel'],
+    enum: ['add_channel', 'evaluate_and_pay_for_post'],
     title: 'BackendStateActionsKeys'
 } as const;
 
@@ -12,9 +12,12 @@ export const BackendStateActionsParamsSchema = {
     properties: {
         add_channel: {
             '$ref': '#/components/schemas/BackendStateActionAddChannel'
+        },
+        evaluate_and_pay_for_post: {
+            '$ref': '#/components/schemas/BackendStateActionEvaluateAndPayForPost'
         }
     },
-    required: ['add_channel'],
+    required: ['add_channel', 'evaluate_and_pay_for_post'],
     title: 'BackendStateActionsParams',
     type: 'object'
 } as const;
@@ -60,11 +63,11 @@ export const BackendStateSchema = {
                 '$ref': '#/components/schemas/TiktokPostEvaluation'
             },
             default: {
-                1: {
+                7571400659203919106: {
                     date_evaluated: null,
                     estimated_ctr: 0.2,
                     evaluation_text: null,
-                    id: '1',
+                    id: '7571400659203919106',
                     post_type: 'demo',
                     product_mentioned: true,
                     prominence_of_product: 'high',
@@ -82,35 +85,7 @@ export const BackendStateSchema = {
                 },
                 type: 'array'
             },
-            default: {
-                1: [
-                    {
-                        bonus_reason: 'The post is well-crafted and engaging',
-                        chat_between_agent_and_creator: {
-                            chat_history: [
-                                {
-                                    content: 'Hello, how are you?',
-                                    role: 'payout_agent',
-                                    timestamp: '2025-11-15T16:07:39.151057'
-                                },
-                                {
-                                    content: "I'm good, thank you!",
-                                    role: 'creator',
-                                    timestamp: '2025-11-15T16:07:39.151064'
-                                }
-                            ]
-                        },
-                        date_paid: '2025-11-15T16:07:39.151067',
-                        determined_base_payout: 100,
-                        determined_bonus: 30,
-                        determined_final_payout: 120,
-                        determined_penalty: 10,
-                        determined_price_per_1k: 1,
-                        number_of_views: 100,
-                        penalty_reason: 'The post is not relevant to the target group'
-                    }
-                ]
-            },
+            default: {},
             description: 'Payout history by post id',
             title: 'Postpayouts',
             type: 'object'
@@ -129,6 +104,22 @@ export const BackendStateActionAddChannelSchema = {
     },
     required: ['channel'],
     title: 'BackendStateActionAddChannel',
+    type: 'object'
+} as const;
+
+export const BackendStateActionEvaluateAndPayForPostSchema = {
+    properties: {
+        channelId: {
+            title: 'Channelid',
+            type: 'string'
+        },
+        postId: {
+            title: 'Postid',
+            type: 'string'
+        }
+    },
+    required: ['channelId', 'postId'],
+    title: 'BackendStateActionEvaluateAndPayForPost',
     type: 'object'
 } as const;
 
