@@ -59,11 +59,11 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
                 number_of_views=100,
                 determined_price_per_1k=1,
                 determined_base_payout=100,
-                determined_penalty=0,
-                penalty_reason="No penalty",
-                determined_bonus=0,
-                bonus_reason="No bonus",
-                determined_final_payout=100,
+                determined_penalty=10,
+                penalty_reason="The post is not relevant to the target group",
+                determined_bonus=30,
+                bonus_reason="The post is well-crafted and engaging",
+                determined_final_payout=120,
                 date_paid=datetime.now(),
             )
         ]

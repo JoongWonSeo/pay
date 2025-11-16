@@ -85,29 +85,29 @@ export const BackendStateSchema = {
             default: {
                 1: [
                     {
-                        bonus_reason: 'No bonus',
+                        bonus_reason: 'The post is well-crafted and engaging',
                         chat_between_agent_and_creator: {
                             chat_history: [
                                 {
                                     content: 'Hello, how are you?',
                                     role: 'payout_agent',
-                                    timestamp: '2025-11-15T16:06:20.350360'
+                                    timestamp: '2025-11-15T16:07:39.151057'
                                 },
                                 {
                                     content: "I'm good, thank you!",
                                     role: 'creator',
-                                    timestamp: '2025-11-15T16:06:20.350369'
+                                    timestamp: '2025-11-15T16:07:39.151064'
                                 }
                             ]
                         },
-                        date_paid: '2025-11-15T16:06:20.350372',
+                        date_paid: '2025-11-15T16:07:39.151067',
                         determined_base_payout: 100,
-                        determined_bonus: 0,
-                        determined_final_payout: 100,
-                        determined_penalty: 0,
+                        determined_bonus: 30,
+                        determined_final_payout: 120,
+                        determined_penalty: 10,
                         determined_price_per_1k: 1,
                         number_of_views: 100,
-                        penalty_reason: 'No penalty'
+                        penalty_reason: 'The post is not relevant to the target group'
                     }
                 ]
             },
