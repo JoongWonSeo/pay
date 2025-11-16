@@ -6,7 +6,7 @@ from typing import override
 
 from ws_sync import SessionState, SyncedAsCamelCase, remote_action, sync_all
 
-from pay.agents.payout_agent import ChatMessage, Payout, PayoutAgentService
+from pay.agents.payout_agent import Payout, PayoutAgentService
 from pay.agents.post_evaluation_agent import TiktokPostEvaluation
 from pay.model import Model
 from pay.tiktok import TiktokChannel, TiktokPost, TiktokService
@@ -90,70 +90,7 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
         post_type = random.choice(post_types)
         estimated_ctr = random.uniform(0.2, 5.0)
 
-        # Calculate price based on factors
-        base_price = 1
-        penalty_amount = 0
-        penalty_reason = None
-        bonus_amount = 0
-        bonus_reason = None
-
-        # Apply penalty if product not mentioned (-50%)
-        if not product_mentioned:
-            penalty_amount = 0.5
-            penalty_reason = "Product not mentioned in the post"
-
-        # Apply prominence bonus
-        if prominence == "high":
-            bonus_amount = 0.2
-            bonus_reason = "High prominence bonus"
-        elif prominence == "medium":
-            bonus_amount = 0.1
-            bonus_reason = "Medium prominence bonus"
-
-        determined_price_per_1k = round(base_price, 2)
-        base_payout = round((post.stats.play_count / 1000) * determined_price_per_1k, 2)
-        penalty_payout = (
-            round((post.stats.play_count / 1000) * penalty_amount, 2)
-            if penalty_amount > 0
-            else 0
-        )
-        bonus_payout = (
-            round((post.stats.play_count / 1000) * bonus_amount, 2)
-            if bonus_amount > 0
-            else 0
-        )
-        determined_payout = round(base_payout - penalty_payout + bonus_payout, 2)
-
-        evaluation_text = f"This {post_type} post shows {'strong' if product_mentioned else 'no'} product presence with {prominence} prominence. The content aligns {target_fit} with our target audience. Based on engagement metrics and content quality, we estimate a {estimated_ctr:.2f}% CTR. The determined payout reflects the post's impact score and alignment with brand objectives."
-
-        # Generate mock chat history
-        chat_history = []
-        if product_mentioned:
-            chat_history = [
-                ChatMessage(
-                    role="payout_agent",
-                    content=f"Great work on your {post_type} post! The product was prominently featured.",
-                    timestamp=datetime.now(),
-                ),
-                ChatMessage(
-                    role="creator",
-                    content="Thank you! I tried to showcase it naturally.",
-                    timestamp=datetime.now(),
-                ),
-            ]
-        else:
-            chat_history = [
-                ChatMessage(
-                    role="payout_agent",
-                    content=f"We noticed the product wasn't mentioned in your {post_type} post. This affects the payout calculation.",
-                    timestamp=datetime.now(),
-                ),
-                ChatMessage(
-                    role="creator",
-                    content="I understand. I'll make sure to feature the product more clearly next time.",
-                    timestamp=datetime.now(),
-                ),
-            ]
+        evaluation_text = f"This {post_type} post shows {'strong' if product_mentioned else 'no'} product presence with {prominence} prominence. The content aligns {target_fit} with our target audience. Based on engagement metrics and content quality, we estimate a {estimated_ctr:.2f}% CTR."
 
         self.post_evaluations[post.id] = TiktokPostEvaluation(
             id=post.id,
@@ -188,7 +125,7 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
             post_evaluation=post_evaluation,
             chat_between_agent_and_creator=payout.chat_between_agent_and_creator,
             destination_wallet_address="0x063c106d59a9b7aff602e7f1df600a9e10ba15de",
-            max_budget=100,
+            max_budget=10,
         )
         self.post_payouts[post_id].append(final_payout)
         await self.sync(toast="Payout completed")
