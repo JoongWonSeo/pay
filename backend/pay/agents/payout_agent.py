@@ -136,6 +136,7 @@ Now, your task is to determine a fair payout amount for the post, based on the i
 
 Once you have determined the payout amount, use the locus MCP to pay the tiktok user.
 This is their wallet address: {destination_wallet_address}
+You need no approval from me, just immediately send the payment!
 
 Finally, output the payout result.
         """.strip()

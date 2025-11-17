@@ -43,7 +43,12 @@ class BackendState(SessionState, SyncedAsCamelCase, Model):
         self._task_init = asyncio.create_task(self._tiktok_service.start())
         self._task_init.add_done_callback(_log_task_exception)
 
-        self._tracked_users = ["tenminai.korean", "violesdcwev"]
+        self._tracked_users = [
+            "tenminai.korean",
+            "violesdcwev",
+            "emmalearnshard",
+            "sophiaandlanguages",
+        ]
         self._task_fetch_from_tiktok: asyncio.Task[None] | None = None
 
     @override

@@ -467,7 +467,7 @@ export default function App() {
                           size="lg"
                           className="w-full text-black"
                         >
-                          Evaluate & Pay
+                          Determine Payout & Send Payment
                         </Button>
                       </div>
                     )}
@@ -479,7 +479,7 @@ export default function App() {
 
               {/* AI Analysis */}
               <div>
-                <h2 className="text-2xl font-bold mb-4">AI Analysis</h2>
+                <h2 className="text-2xl font-bold mb-4">AI Post Evaluation</h2>
                 {evaluation ? (
                   <div className="space-y-6">
                     {/* Main Layout: Left Bar + Right Column */}
@@ -595,12 +595,12 @@ export default function App() {
                               {latestPayout.determined_bonus &&
                                 latestPayout.determined_bonus > 0 && (
                                   <tr className="bg-green-50/50 dark:bg-green-950/20">
-                                    <td className="p-3 text-muted-foreground">
+                                    <td className="p-3 text-green-700 dark:text-green-400 font-medium">
                                       Bonus{" "}
                                       {latestPayout.bonus_reason &&
                                         `(${latestPayout.bonus_reason})`}
                                     </td>
-                                    <td className="p-3 text-right font-semibold text-green-600">
+                                    <td className="p-3 text-right font-bold text-green-600 dark:text-green-500">
                                       +$
                                       {latestPayout.determined_bonus.toFixed(2)}
                                     </td>
@@ -609,12 +609,12 @@ export default function App() {
                               {latestPayout.determined_penalty &&
                                 latestPayout.determined_penalty > 0 && (
                                   <tr className="bg-red-50/50 dark:bg-red-950/20">
-                                    <td className="p-3 text-muted-foreground">
+                                    <td className="p-3 text-red-700 dark:text-red-400 font-medium">
                                       Penalty{" "}
                                       {latestPayout.penalty_reason &&
                                         `(${latestPayout.penalty_reason})`}
                                     </td>
-                                    <td className="p-3 text-right font-semibold text-red-600">
+                                    <td className="p-3 text-right font-bold text-red-600 dark:text-red-500">
                                       -$
                                       {latestPayout.determined_penalty.toFixed(
                                         2
@@ -671,7 +671,7 @@ export default function App() {
               <div className="sticky top-8">
                 <div className="rounded-xl border bg-card">
                   <div className="p-4 border-b">
-                    <h3 className="font-semibold">Agent Chat History</h3>
+                    <h3 className="font-semibold">Agent & Creator Chat</h3>
                     <p className="text-xs text-muted-foreground mt-1">
                       Conversation between AI and creator
                     </p>
